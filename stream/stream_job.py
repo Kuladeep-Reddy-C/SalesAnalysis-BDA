@@ -30,9 +30,11 @@ def run(input_dir: str = "stream_input", output_dir: str = "results/stream", che
     started = time.perf_counter()
 
     def process_batch(batch, batch_id: int) -> None:
+        batch_started = time.perf_counter()
         batch = batch.withColumn("date", F.to_date("date"))
         summary = batch.agg(F.count("sales").alias("rows"), F.sum("sales").alias("units"), F.countDistinct("item_id").alias("items")).first().asDict()
-        summary.update({"batch_id": batch_id, "processed_at": time.time(), "stream_type": "simulated_historical_replay"})
+        summary.update({"batch_id": batch_id, "processed_at": time.time(), "stream_type": "simulated_historical_replay", "latency_seconds": time.perf_counter() - batch_started})
+        summary["rows_per_second"] = float(summary["rows"] / summary["latency_seconds"]) if summary["latency_seconds"] else 0.0
         with metrics_path.open("a") as handle:
             handle.write(json.dumps(summary) + "\n")
         threshold = batch.groupBy("item_id", "store_id").agg(F.avg("sales").alias("mean_sales"), F.max("sales").alias("max_sales")).where(F.col("max_sales") >= F.col("mean_sales") * 3).withColumn("batch_id", F.lit(batch_id)).withColumn("stream_type", F.lit("simulated_historical_replay"))

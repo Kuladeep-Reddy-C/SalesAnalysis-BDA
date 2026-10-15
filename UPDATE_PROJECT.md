@@ -69,13 +69,13 @@ This file records the ordered improvement work requested from the critical evalu
 
 ### Item 5: Add simulated real-time processing
 
-**Status:** Core replay and streaming job completed; dashboard live tab remains.
+**Status:** Configurable replay and streaming job completed; dashboard refresh is manual/API-backed rather than continuous.
 
 **What was there:** The project only described simulated streaming as a future option and had no replay generator or Structured Streaming job.
 
 **What changed:** Added `stream/replay.py` to emit historical sales as day-sized JSON micro-batches and `stream/stream_job.py` to consume them with Spark Structured Streaming, checkpointing, micro-batch summaries, and simulated spike output. Every output is labelled `simulated_historical_replay`.
 
-**Validation:** Seven historical days produced 1,848 rows across 7 batches. Structured Streaming processed them successfully in approximately 4.8 seconds and wrote `results/stream/microbatch_metrics.jsonl` and `results/stream/simulated_spikes.jsonl`. This is a replay of historical data, not a live external feed.
+**Validation:** Twenty-eight historical days produced 7,392 rows across 28 batches. Structured Streaming processed them successfully in approximately 7.6 seconds and wrote `results/stream/microbatch_metrics.jsonl` and `results/stream/simulated_spikes.jsonl`. The replay accepts an adjustable interval; each micro-batch records latency and rows/second. This is a replay of historical data, not a live external feed.
 
 **Remaining work:** Add a dashboard Live tab that refreshes these serving outputs while keeping the simulated banner visible.
 

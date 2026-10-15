@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -10,7 +11,7 @@ import pandas as pd
 from config import Config
 
 
-def replay(config: Config | None = None, output: Path | None = None, days: int = 28) -> dict:
+def replay(config: Config | None = None, output: Path | None = None, days: int = 28, interval_seconds: float = 0.0) -> dict:
     """Write historical rows as day-sized JSON micro-batches.
 
     This is a simulated stream: every record is historical and is labelled as such.
@@ -32,11 +33,14 @@ def replay(config: Config | None = None, output: Path | None = None, days: int =
         batch["stream_type"] = "simulated_historical_replay"
         batch.to_json(output / f"batch-{index:04d}.json", orient="records", lines=True)
         rows += len(batch)
-    return {"stream_type": "simulated_historical_replay", "batch_count": len(selected_dates), "rows": rows, "output": str(output)}
+        if interval_seconds > 0 and index < len(selected_dates) - 1:
+            time.sleep(interval_seconds)
+    return {"stream_type": "simulated_historical_replay", "batch_count": len(selected_dates), "rows": rows, "output": str(output), "interval_seconds": interval_seconds}
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Replay historical sales as simulated stream batches")
     parser.add_argument("--days", type=int, default=28)
+    parser.add_argument("--interval", type=float, default=0.0, help="Seconds between simulated day batches")
     args = parser.parse_args()
-    print(json.dumps(replay(days=args.days), indent=2))
+    print(json.dumps(replay(days=args.days, interval_seconds=args.interval), indent=2))

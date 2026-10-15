@@ -113,11 +113,11 @@ The Spark run records `engine`, Spark version, master, shuffle partitions, row c
 To run the optional simulated stream:
 
 ```bash
-.venv/bin/python -m stream.replay --days 28
+.venv/bin/python -m stream.replay --days 28 --interval 0.5
 .venv/bin/python -m stream.stream_job
 ```
 
-This replays historical rows as JSON micro-batches through Spark Structured Streaming. It is explicitly labelled `simulated_historical_replay`, not live data. Micro-batch summaries and simulated spike records are written under `results/stream/`, with checkpoint state under `results/checkpoints/`.
+This replays historical rows as JSON micro-batches through Spark Structured Streaming. It is explicitly labelled `simulated_historical_replay`, not live data. The interval is adjustable; micro-batch summaries include latency and rows/second, and simulated spike records are written under `results/stream/`, with checkpoint state under `results/checkpoints/`.
 
 ### 3. Run tests
 
