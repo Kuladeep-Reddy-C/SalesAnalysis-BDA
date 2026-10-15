@@ -149,13 +149,13 @@ This file records the ordered improvement work requested from the critical evalu
 
 ### Item 10: Use a real serving backend
 
-**Status:** API connectivity implemented; HBase availability remains an environment blocker.
+**Status:** Completed with HBase active as the default backend.
 
 **What was there:** SQLite and FastAPI existed, but the API read CSV files directly and the dashboard/API had no HBase-aware backend selection.
 
-**What changed:** Added `api/hbase_store.py` and `api/backend.py`. The API now attempts HBase Thrift in `auto` mode, can require it with `SERVING_BACKEND=hbase`, reports `/backend-status`, and falls back to SQLite when HBase is unavailable. HBase uses new serving tables `retail_forecasts` and `retail_spikes` with row key `item_id#store_id#yyyy-mm-dd`; existing source tables are never modified. SQLite now serves forecasts, spikes, decisions, and metrics.
+**What changed:** Added `api/hbase_store.py` and `api/backend.py`. The API now requires HBase Thrift by default, reports `/backend-status`, and returns an unavailable error instead of silently falling back when HBase is down. The loader populated new serving tables `retail_forecasts`, `retail_spikes`, `retail_decisions`, and `retail_metrics`; existing source tables are never modified. SQLite is available only when explicitly selected with `SERVING_BACKEND=sqlite`.
 
-**Validation:** HBase/ZooKeeper is still unavailable on this machine, so no HBase connection claim is made. The fallback API returned HTTP 200 for `/health`, `/backend-status`, `/metrics`, and `/decisions`; SQLite serving-store creation succeeded.
+**Validation:** HDFS, ZooKeeper, HMaster, HRegionServer, and HBase Thrift are running. HBase shell lists the existing source tables plus `retail_forecasts`, `retail_spikes`, `retail_decisions`, and `retail_metrics`. Thrift connects on port 9090, and the loader wrote 1,848 forecasts, 6,852 spikes, 264 decisions, and 8 metrics rows. With `SERVING_BACKEND=hbase`, `/health`, `/backend-status`, `/metrics`, `/decisions`, and `/forecast/HOBBIES_1_001` all returned HTTP 200 with `active_backend: hbase`. Streamlit was restarted with `RETAIL_API_URL=http://127.0.0.1:8000`, so the visible application uses the HBase-backed API.
 
 **App connectivity:** Streamlit now calls the API for backend status, metrics, spikes, decisions, and selected forecasts when `RETAIL_API_URL` is configured, while retaining the persisted-file fallback if the API is unavailable.
 

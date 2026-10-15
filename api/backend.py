@@ -13,14 +13,14 @@ class ServingBackend:
         self.results = results
         self.hbase = HBaseServingStore()
         self.sqlite_path = results / "serving.sqlite3"
-        self.preferred = os.getenv("SERVING_BACKEND", "auto").lower()
+        self.preferred = os.getenv("SERVING_BACKEND", "hbase").lower()
         if self.preferred in {"hbase", "auto"}:
             self.hbase.connect()
 
     def status(self) -> dict:
         return {
             "preferred_backend": self.preferred,
-            "active_backend": "hbase" if self.hbase.status.connected else "sqlite",
+            "active_backend": "hbase" if self.hbase.status.connected else ("sqlite" if self.preferred == "sqlite" else "unavailable"),
             "hbase": self.hbase.status.__dict__,
             "sqlite_available": self.sqlite_path.exists(),
         }
@@ -32,11 +32,17 @@ class ServingBackend:
             return pd.read_sql_query(f"SELECT * FROM {table}", connection)
 
     def metrics(self) -> list[dict]:
+        if self.hbase.status.connected:
+            return self.hbase.scan_table(self.hbase.metrics_table)
+        if self.preferred == "hbase":
+            raise RuntimeError(self.hbase.status.detail)
         return self._sqlite("metrics").to_dict(orient="records")
 
     def forecasts(self, item_id: str, store_id: str | None = None) -> list[dict]:
         if self.hbase.status.connected:
             return self.hbase.get_forecast(item_id, store_id)
+        if self.preferred == "hbase":
+            raise RuntimeError(self.hbase.status.detail)
         frame = self._sqlite("forecasts")
         frame = frame[frame["item_id"] == item_id]
         if store_id:
@@ -44,7 +50,15 @@ class ServingBackend:
         return frame.to_dict(orient="records")
 
     def spikes(self, limit: int) -> list[dict]:
+        if self.hbase.status.connected:
+            return self.hbase.scan_table(self.hbase.spike_table, limit)
+        if self.preferred == "hbase":
+            raise RuntimeError(self.hbase.status.detail)
         return self._sqlite("spikes").head(limit).to_dict(orient="records")
 
     def decisions(self, limit: int) -> list[dict]:
+        if self.hbase.status.connected:
+            return self.hbase.scan_table(self.hbase.decision_table, limit)
+        if self.preferred == "hbase":
+            raise RuntimeError(self.hbase.status.detail)
         return self._sqlite("decisions").head(limit).to_dict(orient="records")

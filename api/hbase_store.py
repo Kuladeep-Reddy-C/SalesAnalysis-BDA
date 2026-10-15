@@ -20,6 +20,8 @@ class HBaseServingStore:
         self.port = int(os.getenv("HBASE_THRIFT_PORT", "9090"))
         self.forecast_table = os.getenv("HBASE_FORECAST_TABLE", "retail_forecasts")
         self.spike_table = os.getenv("HBASE_SPIKE_TABLE", "retail_spikes")
+        self.decision_table = os.getenv("HBASE_DECISION_TABLE", "retail_decisions")
+        self.metrics_table = os.getenv("HBASE_METRICS_TABLE", "retail_metrics")
         self._connection = None
         self._status = HBaseStatus(False, False, "HBase Thrift adapter not attempted")
 
@@ -46,7 +48,7 @@ class HBaseServingStore:
         if not self._connection:
             raise RuntimeError(self._status.detail)
         existing = set(self._connection.tables())
-        for name in (self.forecast_table, self.spike_table):
+        for name in (self.forecast_table, self.spike_table, self.decision_table, self.metrics_table):
             if name.encode() not in existing:
                 self._connection.create_table(name, {"f": {}})
 
@@ -67,6 +69,16 @@ class HBaseServingStore:
         prefix = f"{item_id}#" if not store_id else f"{item_id}#{store_id}#"
         rows = []
         for key, values in table.scan(row_prefix=prefix.encode()):
+            record = {"row_key": key.decode()}
+            record.update({key.decode().replace("f:", ""): value.decode() for key, value in values.items()})
+            rows.append(record)
+        return rows
+
+    def scan_table(self, table_name: str, limit: int = 1000) -> list[dict[str, str]]:
+        if not self._connection:
+            raise RuntimeError(self._status.detail)
+        rows = []
+        for key, values in self._connection.table(table_name).scan(limit=limit):
             record = {"row_key": key.decode()}
             record.update({key.decode().replace("f:", ""): value.decode() for key, value in values.items()})
             rows.append(record)
