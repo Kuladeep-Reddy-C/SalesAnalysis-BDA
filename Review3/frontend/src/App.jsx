@@ -23,20 +23,21 @@ const HASH_MAP = {
   '#results': 'results-visualisation',
   '#visualisation': 'results-visualisation',
   '#visualizations': 'results-visualisation',
-  '#decision': 'conclude-decision',
-  '#decisions': 'conclude-decision',
   '#model': 'ml-model-selection',
   '#ml': 'ml-model-selection',
-  '#performance': 'performance-analysis'
+  '#performance': 'performance-analysis',
+  '#decision': 'conclude-decision',
+  '#decisions': 'conclude-decision',
+  '#conclusion': 'conclude-decision'
 };
 
 const TAB_TO_HASH = {
   'datasets': '#datasets',
   'preprocessing-eda': '#eda',
   'results-visualisation': '#results',
-  'conclude-decision': '#decision',
   'ml-model-selection': '#model',
-  'performance-analysis': '#performance'
+  'performance-analysis': '#performance',
+  'conclude-decision': '#decision'
 };
 
 export default function App() {
@@ -189,7 +190,7 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 mt-12 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 space-y-3 sm:space-y-0">
           <div>
-            <span className="font-bold text-slate-700">Retail Demand Lab</span> — 23CSE352 Big Data Analytics Project Review 3
+            <span className="font-bold text-slate-700">Retail Demand Lab</span> — 23CSE352 Big Data Analytics Project
           </div>
           <div className="flex items-center space-x-4">
             <span>PySpark 3.5.9</span>

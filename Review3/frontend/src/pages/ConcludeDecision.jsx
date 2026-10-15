@@ -38,14 +38,9 @@ export default function ConcludeDecision({ decisionData, spikeData }) {
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
       <div className="border-b border-slate-200 pb-5">
-        <div className="flex items-center space-x-3">
-          <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 4 of 6
-          </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Conclude the Analysis Decision: Supply Chain Inventory Triggers
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Conclude the Analysis Decision: Supply Chain Inventory Triggers
+        </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
           Operationalizing machine learning outputs into automated <strong>Inventory Reorder Decisions</strong>. 
           Products exhibiting forecast demand uplifts &gt; 10% above recent moving averages are flagged with 

@@ -33,14 +33,9 @@ export default function PreprocessingEDA() {
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
       <div className="border-b border-slate-200 pb-5">
-        <div className="flex items-center space-x-3">
-          <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 2 of 6
-          </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Preprocessing and Exploratory Data Analysis (EDA)
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Preprocessing and Exploratory Data Analysis (EDA)
+        </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
           Preprocessing and structural exploration of the multi-echelon retail catalog. 
           Uncovers critical retail demand characteristics including <strong>73.0% intermittent zero-sales</strong>, 
@@ -187,8 +182,8 @@ export default function PreprocessingEDA() {
               <AreaChart data={MOCK_TIME_SERIES}>
                 <defs>
                   <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ea580c" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#ea580c" stopOpacity={0.0}/>
+                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -198,7 +193,7 @@ export default function PreprocessingEDA() {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                 />
                 <Legend wrapperStyle={{fontSize: '11px'}} />
-                <Area type="monotone" dataKey="actual" name="Actual Daily Demand" stroke="#ea580c" strokeWidth={2.5} fillOpacity={1} fill="url(#salesGrad)" />
+                <Area type="monotone" dataKey="actual" name="Actual Daily Demand" stroke="#0d9488" strokeWidth={2.5} fillOpacity={1} fill="url(#salesGrad)" />
                 <Area type="monotone" dataKey="ma" name="28-Day Baseline Mean" stroke="#64748b" strokeWidth={1.5} strokeDasharray="4 4" fill="none" />
               </AreaChart>
             </ResponsiveContainer>
@@ -222,7 +217,7 @@ export default function PreprocessingEDA() {
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                 />
-                <Bar dataKey="total_sales" name="Total Units Sold" fill="#ea580c" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="total_sales" name="Total Units Sold" fill="#0d9488" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

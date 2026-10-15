@@ -3,11 +3,6 @@ import {
   BarChart3, 
   TrendingUp, 
   Image as ImageIcon, 
-  Calendar, 
-  CheckCircle2, 
-  Eye, 
-  Layers, 
-  Filter,
   Maximize2,
   X
 } from 'lucide-react';
@@ -30,9 +25,11 @@ import {
   MOCK_HORIZON_METRICS 
 } from '../data/mockData';
 
-// Direct ES Module Imports - Bundled directly by Vite with guaranteed availability
+// Direct ES Module Imports — bundled by Vite with guaranteed availability
+// Charts 1 & 2 moved to the Interactive section — they show predicted vs actual context
 import actualVsPredictedImg from '../assets/charts/actual_vs_predicted.png';
 import modelPerformanceImg from '../assets/charts/model_performance.png';
+// Remaining 5 charts live in the gallery
 import demandSpikesImg from '../assets/charts/demand_spikes.png';
 import dailySalesTrendImg from '../assets/charts/daily_sales_trend.png';
 import priceVsSalesImg from '../assets/charts/price_vs_sales.png';
@@ -41,39 +38,34 @@ import storeComparisonImg from '../assets/charts/store_comparison.png';
 
 export default function ResultsVisualization() {
   const [selectedModel, setSelectedModel] = useState('all');
-  const [activeChartTab, setActiveChartTab] = useState('gallery'); // Default to gallery tab so charts are visible immediately!
+  const [activeChartTab, setActiveChartTab] = useState('interactive');
   const [modalImage, setModalImage] = useState(null);
 
+  // 5 charts in the gallery (1 & 2 moved to interactive section above)
   const staticCharts = [
-    { title: "Actual vs Predicted Sales Timeline", img: actualVsPredictedImg, fallbackFile: "/charts/actual_vs_predicted.png", desc: "Holdout test set forecast tracking against ground truth demand" },
-    { title: "Model Performance Benchmark", img: modelPerformanceImg, fallbackFile: "/charts/model_performance.png", desc: "Comparative WAPE, MAE, and RMSE across tree ensembles and baselines" },
-    { title: "Demand Spikes & Anomaly Detection", img: demandSpikesImg, fallbackFile: "/charts/demand_spikes.png", desc: "Flagged demand surges exceeding Poisson and moving threshold confidence" },
-    { title: "Daily Sales Trend (5.4 Years)", img: dailySalesTrendImg, fallbackFile: "/charts/daily_sales_trend.png", desc: "Longitudinal retail demand with holiday seasonality and annual cyclicity" },
-    { title: "Price vs Sales Volume Elasticity", img: priceVsSalesImg, fallbackFile: "/charts/price_vs_sales.png", desc: "Demand sensitivity across unit shelf prices and promotional tiers" },
-    { title: "Top Products Velocity Ranking", img: topProductsImg, fallbackFile: "/charts/top_products.png", desc: "Cumulative units sold across top performing HOBBIES_1 catalog items" },
-    { title: "Store Location Comparison", img: storeComparisonImg, fallbackFile: "/charts/store_comparison.png", desc: "Regional demand aggregate across 10 supercenters in CA, TX, and WI" }
+    { title: "Demand Spikes & Anomaly Detection",    img: demandSpikesImg,    fallbackFile: "/charts/demand_spikes.png",    desc: "Flagged demand surges exceeding Poisson and moving threshold confidence" },
+    { title: "Daily Sales Trend (5.4 Years)",         img: dailySalesTrendImg, fallbackFile: "/charts/daily_sales_trend.png", desc: "Longitudinal retail demand with holiday seasonality and annual cyclicity" },
+    { title: "Price vs Sales Volume Elasticity",      img: priceVsSalesImg,    fallbackFile: "/charts/price_vs_sales.png",    desc: "Demand sensitivity across unit shelf prices and promotional tiers" },
+    { title: "Top Products Velocity Ranking",         img: topProductsImg,     fallbackFile: "/charts/top_products.png",      desc: "Cumulative units sold across top performing HOBBIES_1 catalog items" },
+    { title: "Store Location Comparison",             img: storeComparisonImg, fallbackFile: "/charts/store_comparison.png",  desc: "Regional demand aggregate across 10 supercenters in CA, TX, and WI" },
   ];
 
   // Calculate residuals for chart
   const residualData = MOCK_TIME_SERIES.map(d => ({
     date: d.date,
     gbt_res: (d.actual - d.gbt).toFixed(1),
-    rf_res: (d.actual - d.rf).toFixed(1),
-    dt_res: (d.actual - d.dt).toFixed(1)
+    rf_res:  (d.actual - d.rf).toFixed(1),
+    dt_res:  (d.actual - d.dt).toFixed(1)
   }));
 
   return (
     <div className="space-y-8 animate-fadeIn">
+
       {/* Header */}
       <div className="border-b border-slate-200 pb-5">
-        <div className="flex items-center space-x-3">
-          <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 3 of 6
-          </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Display Results with Interactive & Visual Analytics
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Display Results with Interactive &amp; Visual Analytics
+        </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
           Comprehensive visual evaluation comparing actual retail sales demand against machine learning 
           predictions, residual error distributions over time, multi-step rolling horizons, and pipeline analytical artifacts.
@@ -84,17 +76,6 @@ export default function ResultsVisualization() {
       <div className="flex items-center justify-between bg-white p-2 rounded-xl border border-slate-200 shadow-xs">
         <div className="flex space-x-2">
           <button
-            onClick={() => setActiveChartTab('gallery')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeChartTab === 'gallery' 
-                ? 'bg-brand-600 text-white shadow-xs' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <ImageIcon className="w-4 h-4" />
-            <span>Generated Analytical Chart Gallery (7 Visuals)</span>
-          </button>
-          <button
             onClick={() => setActiveChartTab('interactive')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeChartTab === 'interactive' 
@@ -103,7 +84,18 @@ export default function ResultsVisualization() {
             }`}
           >
             <TrendingUp className="w-4 h-4" />
-            <span>Interactive Multi-Model Timeline & Residuals</span>
+            <span>Interactive Multi-Model Timeline &amp; Residuals</span>
+          </button>
+          <button
+            onClick={() => setActiveChartTab('gallery')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeChartTab === 'gallery' 
+                ? 'bg-brand-600 text-white shadow-xs' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <ImageIcon className="w-4 h-4" />
+            <span>Analytical Chart Gallery (5 Visuals)</span>
           </button>
         </div>
 
@@ -117,14 +109,14 @@ export default function ResultsVisualization() {
             >
               <option value="all">All Models (GBT, RF, DT, MA)</option>
               <option value="champion">GBT Champion vs Actual</option>
-              <option value="ensembles">Tree Ensembles (GBT & RF)</option>
+              <option value="ensembles">Tree Ensembles (GBT &amp; RF)</option>
             </select>
           </div>
         )}
       </div>
 
       {activeChartTab === 'gallery' ? (
-        /* Static Chart Gallery View with Bundled Assets */
+        /* Static Chart Gallery View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {staticCharts.map((chart, idx) => (
             <div key={idx} className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden hover:shadow-md transition-shadow flex flex-col justify-between">
@@ -132,7 +124,6 @@ export default function ResultsVisualization() {
                 <h3 className="text-sm font-bold text-slate-900">{chart.title}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">{chart.desc}</p>
               </div>
-              
               <div 
                 className="p-3 bg-white flex items-center justify-center min-h-[220px] cursor-pointer group"
                 onClick={() => setModalImage(chart)}
@@ -143,14 +134,12 @@ export default function ResultsVisualization() {
                   alt={chart.title}
                   className="max-h-60 w-auto object-contain rounded border border-slate-200 shadow-2xs group-hover:scale-[1.02] transition-transform duration-200"
                   onError={(e) => {
-                    // Try fallback file if direct bundle fails
                     if (e.target.src !== chart.fallbackFile) {
                       e.target.src = chart.fallbackFile;
                     }
                   }}
                 />
               </div>
-
               <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-[11px] font-mono text-slate-400">results/charts</span>
                 <button
@@ -167,7 +156,8 @@ export default function ResultsVisualization() {
       ) : (
         /* Interactive Multi-Model Timeline & Residuals */
         <div className="space-y-6">
-          {/* Main Interactive Forecast Chart */}
+
+          {/* Main Interactive Forecast Chart (Recharts) */}
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
             <div className="flex justify-between items-center mb-5">
               <div>
@@ -193,7 +183,6 @@ export default function ResultsVisualization() {
                 </span>
               </div>
             </div>
-
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={MOCK_TIME_SERIES}>
@@ -217,7 +206,7 @@ export default function ResultsVisualization() {
                       type="monotone" 
                       dataKey="gbt" 
                       name="Gradient Boosting (Champion)" 
-                      stroke="#ea580c" 
+                      stroke="#0d9488" 
                       strokeWidth={2.5} 
                       dot={{r: 2}} 
                     />
@@ -257,6 +246,45 @@ export default function ResultsVisualization() {
             </div>
           </div>
 
+          {/* Pipeline-Generated Charts — Actual vs Predicted & Model Performance */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { title: "Actual vs Predicted Sales Timeline", img: actualVsPredictedImg, fallbackFile: "/charts/actual_vs_predicted.png", desc: "Holdout test set forecast tracking against ground truth demand" },
+              { title: "Model Performance Benchmark",        img: modelPerformanceImg,  fallbackFile: "/charts/model_performance.png",  desc: "Comparative WAPE, MAE, and RMSE across tree ensembles and baselines" },
+            ].map((chart, idx) => (
+              <div key={idx} className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <h3 className="text-sm font-bold text-slate-900">{chart.title}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{chart.desc}</p>
+                </div>
+                <div 
+                  className="p-3 bg-white flex items-center justify-center min-h-[220px] cursor-pointer group"
+                  onClick={() => setModalImage(chart)}
+                  title="Click to enlarge"
+                >
+                  <img 
+                    src={chart.img || chart.fallbackFile} 
+                    alt={chart.title}
+                    className="max-h-60 w-auto object-contain rounded border border-slate-200 shadow-2xs group-hover:scale-[1.02] transition-transform duration-200"
+                    onError={(e) => {
+                      if (e.target.src !== chart.fallbackFile) e.target.src = chart.fallbackFile;
+                    }}
+                  />
+                </div>
+                <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">results/charts</span>
+                  <button
+                    onClick={() => setModalImage(chart)}
+                    className="inline-flex items-center space-x-1 text-xs text-brand-600 hover:text-brand-700 font-bold cursor-pointer"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Enlarge Chart</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Model Residuals Chart (Error Over Time) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
@@ -278,8 +306,8 @@ export default function ResultsVisualization() {
                       contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                     />
                     <Legend wrapperStyle={{fontSize: '11px'}} />
-                    <Bar dataKey="gbt_res" name="GBT Residual Error" fill="#ea580c" />
-                    <Bar dataKey="rf_res" name="RF Residual Error" fill="#3b82f6" />
+                    <Bar dataKey="gbt_res" name="GBT Residual Error" fill="#0d9488" />
+                    <Bar dataKey="rf_res"  name="RF Residual Error"  fill="#3b82f6" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -292,7 +320,7 @@ export default function ResultsVisualization() {
                   Forecast Error Degradation Across 1 to 7 Day Horizons
                 </h3>
                 <p className="text-xs text-slate-500">
-                  WAPE comparison: ML ensembles lead in Days 1-4; Moving Average stabilizes in Days 5-7
+                  WAPE comparison: ML ensembles lead in Days 1–4; Moving Average stabilises in Days 5–7
                 </p>
               </div>
               <div className="h-64 w-full">
@@ -305,18 +333,19 @@ export default function ResultsVisualization() {
                       contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                     />
                     <Legend wrapperStyle={{fontSize: '11px'}} />
-                    <Line type="monotone" dataKey="rf_wape" name="Random Forest WAPE" stroke="#2563eb" strokeWidth={2.5} dot={{r: 3}} />
-                    <Line type="monotone" dataKey="ma_wape" name="28-Day MA WAPE" stroke="#64748b" strokeWidth={2} strokeDasharray="4 4" />
-                    <Line type="monotone" dataKey="naive_wape" name="Seasonal Naive WAPE" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="2 2" />
+                    <Line type="monotone" dataKey="rf_wape"    name="Random Forest WAPE"   stroke="#2563eb" strokeWidth={2.5} dot={{r: 3}} />
+                    <Line type="monotone" dataKey="ma_wape"    name="28-Day MA WAPE"        stroke="#64748b" strokeWidth={2}   strokeDasharray="4 4" />
+                    <Line type="monotone" dataKey="naive_wape" name="Seasonal Naive WAPE"   stroke="#ef4444" strokeWidth={1.5} strokeDasharray="2 2" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
           </div>
+
         </div>
       )}
 
-      {/* Lightbox Modal for Enlarge Chart */}
+      {/* Lightbox Modal */}
       {modalImage && (
         <div 
           className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"

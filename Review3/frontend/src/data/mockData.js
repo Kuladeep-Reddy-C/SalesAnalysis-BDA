@@ -243,3 +243,64 @@ export const MOCK_TIME_SERIES = [
   { date: "2016-04-23", actual: 72, gbt: 69, rf: 67, dt: 63, ma: 52 },
   { date: "2016-04-24", actual: 67, gbt: 64, rf: 63, dt: 59, ma: 53 }
 ];
+
+export const MOCK_CONFUSION_MATRICES = {
+  gbt: {
+    id: "gbt",
+    name: "Gradient Boosted Trees (Champion)",
+    tp: 1184, fn: 86, fp: 112, tn: 6010, total: 7392,
+    accuracy: 97.32, precision: 91.35, recall: 93.23, f1: 92.28,
+    auc: 0.942, pr_auc: 0.891
+  },
+  rf: {
+    id: "rf",
+    name: "Random Forest Regressor",
+    tp: 1120, fn: 150, fp: 158, tn: 5964, total: 7392,
+    accuracy: 95.83, precision: 87.64, recall: 88.19, f1: 87.91,
+    auc: 0.908, pr_auc: 0.843
+  },
+  dt: {
+    id: "dt",
+    name: "Decision Tree (Baseline)",
+    tp: 1012, fn: 258, fp: 242, tn: 5880, total: 7392,
+    accuracy: 93.24, precision: 80.70, recall: 79.69, f1: 80.19,
+    auc: 0.835, pr_auc: 0.762
+  }
+};
+
+export const MOCK_ROC_DATA = [
+  { fpr: 0.00, gbt_tpr: 0.00, rf_tpr: 0.00, dt_tpr: 0.00, baseline: 0.00 },
+  { fpr: 0.02, gbt_tpr: 0.38, rf_tpr: 0.29, dt_tpr: 0.20, baseline: 0.02 },
+  { fpr: 0.05, gbt_tpr: 0.64, rf_tpr: 0.52, dt_tpr: 0.38, baseline: 0.05 },
+  { fpr: 0.10, gbt_tpr: 0.82, rf_tpr: 0.73, dt_tpr: 0.58, baseline: 0.10 },
+  { fpr: 0.15, gbt_tpr: 0.89, rf_tpr: 0.81, dt_tpr: 0.69, baseline: 0.15 },
+  { fpr: 0.20, gbt_tpr: 0.93, rf_tpr: 0.86, dt_tpr: 0.76, baseline: 0.20 },
+  { fpr: 0.30, gbt_tpr: 0.96, rf_tpr: 0.91, dt_tpr: 0.83, baseline: 0.30 },
+  { fpr: 0.40, gbt_tpr: 0.98, rf_tpr: 0.94, dt_tpr: 0.88, baseline: 0.40 },
+  { fpr: 0.60, gbt_tpr: 0.99, rf_tpr: 0.97, dt_tpr: 0.93, baseline: 0.60 },
+  { fpr: 0.80, gbt_tpr: 1.00, rf_tpr: 0.99, dt_tpr: 0.97, baseline: 0.80 },
+  { fpr: 1.00, gbt_tpr: 1.00, rf_tpr: 1.00, dt_tpr: 1.00, baseline: 1.00 },
+];
+
+export const MOCK_PR_DATA = [
+  { recall: 0.05, gbt_prec: 0.98, rf_prec: 0.95, dt_prec: 0.89, baseline: 0.17 },
+  { recall: 0.15, gbt_prec: 0.96, rf_prec: 0.92, dt_prec: 0.85, baseline: 0.17 },
+  { recall: 0.30, gbt_prec: 0.94, rf_prec: 0.89, dt_prec: 0.81, baseline: 0.17 },
+  { recall: 0.50, gbt_prec: 0.92, rf_prec: 0.86, dt_prec: 0.77, baseline: 0.17 },
+  { recall: 0.70, gbt_prec: 0.88, rf_prec: 0.81, dt_prec: 0.71, baseline: 0.17 },
+  { recall: 0.85, gbt_prec: 0.83, rf_prec: 0.74, dt_prec: 0.63, baseline: 0.17 },
+  { recall: 0.93, gbt_prec: 0.75, rf_prec: 0.65, dt_prec: 0.52, baseline: 0.17 },
+  { recall: 1.00, gbt_prec: 0.42, rf_prec: 0.36, dt_prec: 0.28, baseline: 0.17 },
+];
+
+export const MOCK_ERROR_DISTRIBUTION = [
+  { error_bin: "<-4",  gbt_freq: 42,   rf_freq: 78,   dt_freq: 165 },
+  { error_bin: "-3",   gbt_freq: 110,  rf_freq: 164,  dt_freq: 280 },
+  { error_bin: "-2",   gbt_freq: 320,  rf_freq: 410,  dt_freq: 560 },
+  { error_bin: "-1",   gbt_freq: 1140, rf_freq: 1050, dt_freq: 920 },
+  { error_bin: "0",    gbt_freq: 3650, rf_freq: 3420, dt_freq: 2810 },
+  { error_bin: "+1",   gbt_freq: 1320, rf_freq: 1240, dt_freq: 1210 },
+  { error_bin: "+2",   gbt_freq: 490,  rf_freq: 580,  dt_freq: 730 },
+  { error_bin: "+3",   gbt_freq: 230,  rf_freq: 310,  dt_freq: 430 },
+  { error_bin: ">+4",  gbt_freq: 90,   rf_freq: 140,  dt_freq: 287 }
+];

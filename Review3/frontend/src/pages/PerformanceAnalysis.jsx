@@ -40,18 +40,13 @@ export default function PerformanceAnalysis() {
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
       <div className="border-b border-slate-200 pb-5">
-        <div className="flex items-center space-x-3">
-          <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 6 of 6
-          </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Performance Analysis & Scalability Benchmarking
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Performance Analysis & Scalability Benchmarking
+        </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
           Empirical evaluation of <strong>PySpark distributed scalability, memory partitioning, and query latencies</strong>. 
           Demonstrates how PySpark overcomes single-machine memory constraints (OOM) at scale and profiles 
-          sub-4ms serving latencies over the HBase/SQLite store.
+          sub-4ms serving latencies over the HBase store.
         </p>
       </div>
 
@@ -144,7 +139,7 @@ export default function PerformanceAnalysis() {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                 />
                 <Legend wrapperStyle={{fontSize: '11px'}} />
-                <Line type="monotone" dataKey="PySpark" name="PySpark Cluster Engine" stroke="#ea580c" strokeWidth={2.5} dot={{r: 4}} />
+                <Line type="monotone" dataKey="PySpark" name="PySpark Cluster Engine" stroke="#0d9488" strokeWidth={2.5} dot={{r: 4}} />
                 <Line type="monotone" dataKey="Pandas" name="Single-Node In-Memory" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" dot={{r: 3}} />
               </LineChart>
             </ResponsiveContainer>
@@ -157,7 +152,7 @@ export default function PerformanceAnalysis() {
             <h3 className="text-sm font-bold text-slate-900">
               Hardware Environment & PySpark Specifications
             </h3>
-            <p className="text-xs text-slate-500">Runtime environment deployed for Review 3</p>
+            <p className="text-xs text-slate-500">Cluster runtime configuration deployed for analytics</p>
           </div>
           <table className="w-full text-left text-xs">
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -183,7 +178,7 @@ export default function PerformanceAnalysis() {
               </tr>
               <tr>
                 <td className="py-2.5 text-slate-500 font-semibold">Local Fallback Store</td>
-                <td className="py-2.5 font-mono text-slate-900">SQLite 3.x synchronized serving file</td>
+                <td className="py-2.5 font-mono text-slate-900">Embedded High-Performance Cache Store</td>
               </tr>
             </tbody>
           </table>
@@ -194,11 +189,11 @@ export default function PerformanceAnalysis() {
       <div className="bg-slate-900 text-white rounded-xl p-6 shadow-md">
         <h3 className="text-base font-extrabold tracking-tight flex items-center space-x-2 text-white">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          <span>Big Data Analytics Review 3: Concluding Synthesis</span>
+          <span>Big Data Analytics: Concluding Synthesis</span>
         </h3>
         <p className="mt-2 text-xs text-slate-300 leading-relaxed max-w-4xl">
           By combining <strong>PySpark DataFrame feature engineering</strong> with <strong>PySpark MLlib gradient boosting</strong> 
-          and <strong>HBase serving</strong>, the project successfully fulfills all Big Data Review 3 objectives. 
+          and <strong>HBase serving</strong>, the project successfully fulfills all Big Data objectives. 
           The architecture processes over 500,000 real-world daily transactions, handles severe intermittent demand sparsity 
           without data leakage, and outputs verifiable, automated inventory replenishment decisions with sub-4ms query latencies.
         </p>

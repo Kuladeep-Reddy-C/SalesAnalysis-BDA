@@ -19,14 +19,9 @@ export default function Datasets({ summaryData }) {
     <div className="space-y-8 animate-fadeIn">
       {/* Page Header */}
       <div className="border-b border-slate-200 pb-5">
-        <div className="flex items-center space-x-3">
-          <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 1 of 6
-          </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Dataset Ingestion & Overview
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Dataset Ingestion & Overview
+        </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
           Ingestion and schema validation of the real-world Walmart M5 retail demand dataset using 
           <strong> PySpark DataFrames</strong>. Encompasses 5.4 years of historical store register transactions, 
@@ -72,7 +67,7 @@ export default function Datasets({ summaryData }) {
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
           <div>
-            <h2 className="text-base font-bold text-slate-900">1. Raw Input Datasets Ingested</h2>
+            <h2 className="text-base font-bold text-slate-900">Raw Input Datasets Ingested</h2>
             <p className="text-xs text-slate-500">Three synchronized files joined on composite store and date keys</p>
           </div>
           <span className="text-xs font-medium text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
@@ -114,7 +109,7 @@ export default function Datasets({ summaryData }) {
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
           <div>
-            <h2 className="text-base font-bold text-slate-900">2. Ingested Transaction Records (Sample View)</h2>
+            <h2 className="text-base font-bold text-slate-900">Ingested Transaction Records (Sample View)</h2>
             <p className="text-xs text-slate-500">Representative daily observations showing intermittency, shelf pricing, and availability</p>
           </div>
           <span className="text-xs font-mono font-medium text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
