@@ -30,7 +30,7 @@ def health() -> dict:
 def metrics() -> list[dict]:
     try:
         return backend.metrics()
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
@@ -38,7 +38,7 @@ def metrics() -> list[dict]:
 def forecast(item_id: str, store_id: str | None = None) -> list[dict]:
     try:
         records = backend.forecasts(item_id, store_id)
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     if not records:
         raise HTTPException(status_code=404, detail="Forecast not found")
@@ -49,7 +49,7 @@ def forecast(item_id: str, store_id: str | None = None) -> list[dict]:
 def spikes(limit: int = Query(100, ge=1, le=1000)) -> list[dict]:
     try:
         return backend.spikes(limit)
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
@@ -57,7 +57,7 @@ def spikes(limit: int = Query(100, ge=1, le=1000)) -> list[dict]:
 def decisions(limit: int = Query(100, ge=1, le=1000)) -> list[dict]:
     try:
         return backend.decisions(limit)
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
