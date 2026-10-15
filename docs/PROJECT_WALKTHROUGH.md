@@ -503,6 +503,10 @@ The dashboard is useful because a reviewer can:
 
 Training is expensive and should be separated from presentation. The pipeline generates outputs once, and the dashboard reads those persisted outputs. This makes the interface responsive and prevents accidental repeated training.
 
+### How does the backend connect to storage?
+
+FastAPI provides the application boundary. Its backend selector attempts the HBase Thrift adapter when `SERVING_BACKEND=hbase` or `auto` is configured, and reports the active backend through `/backend-status`. HBase serving uses new `retail_forecasts` and `retail_spikes` tables with row keys in the form `item_id#store_id#yyyy-mm-dd`; existing source tables are never changed. When HBase is unavailable, the verified local SQLite serving store provides the same forecast, spike, decision, and metric reads. The current machine uses SQLite because ZooKeeper/HBase Thrift is unavailable.
+
 ---
 
 ## 18. What Happens From Start to End?

@@ -139,9 +139,13 @@ The optional API layer can be started separately:
 .venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
-Available endpoints include `/health`, `/metrics`, `/forecast/{item_id}`, `/spikes`, `/decisions`, and `/run-summary`. The API reads persisted analytics outputs and does not retrain models.
+Available endpoints include `/health`, `/backend-status`, `/metrics`, `/forecast/{item_id}`, `/spikes`, `/decisions`, and `/run-summary`. Set `SERVING_BACKEND=hbase` to require the HBase Thrift adapter, or leave it as `auto` to use HBase when reachable and SQLite otherwise. The API reports the active backend and does not retrain models.
+
+To wire the dashboard to the API, start the API and launch Streamlit with `RETAIL_API_URL=http://127.0.0.1:8000`. Without this variable, Streamlit uses its persisted-file fallback and still displays backend status when the API is reachable.
 
 Build the local serving database from generated outputs with `.venv/bin/python run_pipeline.py --build-store`. This creates `results/serving.sqlite3` as a runnable serving-store alternative when HBase is unavailable.
+
+The HBase serving adapter uses new tables `retail_forecasts` and `retail_spikes` only; it never changes the existing `retail_sales`, `retail_prices`, or `retail_calendar` tables. Forecast row keys follow `item_id#store_id#yyyy-mm-dd`, matching the API's item/store/date lookup pattern.
 
 Run the repeatable reference benchmark with `.venv/bin/python run_pipeline.py --benchmark`; it measures two runs at 10%, 50%, and 100% input fractions and writes `results/metrics/performance.csv`.
 

@@ -5,10 +5,12 @@ from pathlib import Path
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
+from api.backend import ServingBackend
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 app = FastAPI(title="Retail Demand Lab API", version="1.0")
+backend = ServingBackend(RESULTS)
 
 
 def read_csv(name: str) -> pd.DataFrame:
@@ -20,33 +22,48 @@ def read_csv(name: str) -> pd.DataFrame:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "source": "persisted Review3 analytics outputs"}
+    status = backend.status()
+    return {"status": "ok", "source": "serving backend", **status}
 
 
 @app.get("/metrics")
 def metrics() -> list[dict]:
-    return read_csv("metrics/model_metrics.csv").to_dict(orient="records")
+    try:
+        return backend.metrics()
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.get("/forecast/{item_id}")
 def forecast(item_id: str, store_id: str | None = None) -> list[dict]:
-    frame = read_csv("predictions/seven_day_forecast.csv")
-    frame = frame[frame["item_id"] == item_id]
-    if store_id:
-        frame = frame[frame["store_id"] == store_id]
-    if frame.empty:
+    try:
+        records = backend.forecasts(item_id, store_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    if not records:
         raise HTTPException(status_code=404, detail="Forecast not found")
-    return frame.to_dict(orient="records")
+    return records
 
 
 @app.get("/spikes")
 def spikes(limit: int = Query(100, ge=1, le=1000)) -> list[dict]:
-    return read_csv("predictions/demand_spikes.csv").head(limit).to_dict(orient="records")
+    try:
+        return backend.spikes(limit)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.get("/decisions")
 def decisions(limit: int = Query(100, ge=1, le=1000)) -> list[dict]:
-    return read_csv("metrics/forecast_uplift_decision.csv").head(limit).to_dict(orient="records")
+    try:
+        return backend.decisions(limit)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/backend-status")
+def backend_status() -> dict:
+    return backend.status()
 
 
 @app.get("/run-summary")

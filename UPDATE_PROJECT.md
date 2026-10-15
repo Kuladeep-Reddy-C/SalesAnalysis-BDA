@@ -127,11 +127,15 @@ This file records the ordered improvement work requested from the critical evalu
 
 ### Item 10: Use a real serving backend
 
-**Status:** Runnable SQLite serving alternative completed; HBase serving remains optional.
+**Status:** API connectivity implemented; HBase availability remains an environment blocker.
 
-**What changed:** Added `serving/store.py`, which loads forecasts, spikes, and metrics into `results/serving.sqlite3`. This gives the API a local serving-store alternative without modifying the existing HBase tables.
+**What was there:** SQLite and FastAPI existed, but the API read CSV files directly and the dashboard/API had no HBase-aware backend selection.
 
-**Validation:** `run_pipeline.py --build-store` created `results/serving.sqlite3` with forecast, spike, and metrics tables.
+**What changed:** Added `api/hbase_store.py` and `api/backend.py`. The API now attempts HBase Thrift in `auto` mode, can require it with `SERVING_BACKEND=hbase`, reports `/backend-status`, and falls back to SQLite when HBase is unavailable. HBase uses new serving tables `retail_forecasts` and `retail_spikes` with row key `item_id#store_id#yyyy-mm-dd`; existing source tables are never modified. SQLite now serves forecasts, spikes, decisions, and metrics.
+
+**Validation:** HBase/ZooKeeper is still unavailable on this machine, so no HBase connection claim is made. The fallback API returned HTTP 200 for `/health`, `/backend-status`, `/metrics`, and `/decisions`; SQLite serving-store creation succeeded.
+
+**App connectivity:** Streamlit now calls the API for backend status, metrics, spikes, decisions, and selected forecasts when `RETAIL_API_URL` is configured, while retaining the persisted-file fallback if the API is unavailable.
 
 ### Item 13: Add repeatable performance benchmarking
 

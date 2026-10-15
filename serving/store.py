@@ -16,7 +16,8 @@ def build_store(config: Config | None = None, database: Path | None = None) -> P
         forecast = config.results / "predictions" / "seven_day_forecast.csv"
         spikes = config.results / "predictions" / "demand_spikes.csv"
         metrics = config.results / "metrics" / "model_metrics.csv"
-        for path, table in ((forecast, "forecasts"), (spikes, "spikes"), (metrics, "metrics")):
+        decisions = config.results / "metrics" / "forecast_uplift_decision.csv"
+        for path, table in ((forecast, "forecasts"), (spikes, "spikes"), (metrics, "metrics"), (decisions, "decisions")):
             if path.exists():
                 import pandas as pd
                 pd.read_csv(path).to_sql(table, connection, if_exists="replace", index=False)
