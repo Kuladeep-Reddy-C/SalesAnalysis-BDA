@@ -6,6 +6,7 @@ from pathlib import Path
 
 from config import Config
 from analytics.spark_support import create_spark_session
+from analytics.spark_features import add_spark_features
 
 FEATURES = [
     "lag_1", "lag_7", "lag_28", "rolling_7", "rolling_28",
@@ -58,16 +59,7 @@ def run(config: Config | None = None) -> dict:
         daily = daily.withColumn("is_event", ((F.coalesce("event_name_1", F.lit("None")) != "None") | (F.coalesce("event_name_2", F.lit("None")) != "None")).cast("int"))
         daily = daily.withColumn("day_of_week", F.dayofweek("date") - 1).withColumn("month_num", F.month("date"))
 
-        partition = Window.partitionBy("item_id", "store_id").orderBy("date")
-        history = partition.rowsBetween(-7, -1)
-        long_history = partition.rowsBetween(-28, -1)
-        featured = (daily
-            .withColumn("lag_1", F.lag("sales", 1).over(partition))
-            .withColumn("lag_7", F.lag("sales", 7).over(partition))
-            .withColumn("lag_28", F.lag("sales", 28).over(partition))
-            .withColumn("rolling_7", F.avg("sales").over(history))
-            .withColumn("rolling_28", F.avg("sales").over(long_history))
-            .dropna(subset=FEATURES))
+        featured = add_spark_features(daily).dropna(subset=FEATURES)
 
         dates = featured.select("date").distinct().orderBy("date")
         date_values = [row["date"] for row in dates.collect()]

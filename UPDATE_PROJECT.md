@@ -190,3 +190,5 @@ This file records the ordered improvement work requested from the critical evalu
 **What changed:** Added explicit hypotheses, measured-output references, Spark engine evidence, stronger baselines, rolling-origin metrics, API/serving tests, and tracker-level blocker statements.
 
 **Remaining work:** Add Spark/Pandas parity fixtures, formal no-leakage tests for rolling origins, and final source/licence verification for the original dataset terms.
+
+**Parity update:** Added `analytics/spark_features.py` and a Spark/Pandas feature-parity test. The test reads a temporary CSV through Spark, compares lag and rolling features after their required history, and passes. This avoids the PySpark 3.5/Python 3.14 cloudpickle failure encountered when constructing a Spark DataFrame directly from Pandas.

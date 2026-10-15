@@ -8,5 +8,6 @@
 6. **Outputs**: chronological test predictions, metrics, recursive seven-day forecast, spike records, charts, and a pickled model.
 7. **Serving and presentation**: API endpoints expose persisted forecasts, spikes, metrics, and decisions. A local SQLite serving store is available as a runnable alternative to unavailable HBase. Streamlit displays persisted outputs and execution mode.
 8. **Simulated stream**: `stream/replay.py` emits historical day-sized JSON batches and `stream/stream_job.py` processes them with Spark Structured Streaming, checkpointing, and labelled micro-batch outputs.
+9. **Engine parity**: `analytics/spark_features.py` shares the Spark window-feature implementation and a fixture test verifies its lag/rolling outputs against the Pandas reference after each feature's required history.
 
 No existing HBase tables are changed by Review3. The verified Spark run is local `local[*]`, not a multi-node speedup benchmark. HBase remains an optional external backend; SQLite is the verified local serving alternative.
