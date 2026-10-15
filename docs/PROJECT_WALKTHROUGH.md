@@ -581,7 +581,7 @@ Streamlit presents the evidence and a rule-based demand-prioritisation recommend
 
 ## 19. What Decision Does the Project Support?
 
-The expanded benchmark and rolling-origin evaluation show a nuanced result: the 28-day moving average is strongest on the single-window benchmark, while Random Forest is stronger at rolling horizons 1-4 and weaker at horizons 5-7. Across four origins, the forecast-uplift top decile had positive realised uplift in three origins, but rank correlations were low. The dashboard therefore uses forecast uplift as a review signal rather than assuming that Random Forest always wins. The supported decision is:
+The expanded benchmark and rolling-origin evaluation show a nuanced result: the 28-day moving average is strongest on the single-window benchmark, while Random Forest is stronger at rolling horizons 1-4 and weaker at horizons 5-7. The item-level bootstrap interval for Random Forest minus moving-average MAE crosses zero, so Random Forest is not a statistically demonstrated winner. Across four origins, the forecast-uplift top decile had positive realised uplift in three origins, but rank correlations were low. The dashboard therefore uses forecast uplift as a review signal rather than assuming that Random Forest always wins. The supported decision is:
 
 > Use the Random Forest forecast and spike outputs to prioritise which product-store combinations should receive inventory review first.
 

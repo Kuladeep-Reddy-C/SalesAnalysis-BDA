@@ -213,6 +213,8 @@ These are workstation measurements for the verified local run. They are not a cl
 | `results/metrics/feature_importance.csv` | Random Forest feature importance |
 | `results/metrics/forecast_uplift_decision.csv` | Forecast-dependent inventory review ranking |
 | `results/metrics/decision_backtest.csv` | Forecast ranking versus realised uplift and trailing-volume ranking |
+| `results/metrics/weekly_total_metrics.csv` | Seven-day total-demand model comparison |
+| `results/metrics/model_evidence.json` | Bootstrap confidence interval and Poisson noise-floor evidence |
 | `results/metrics/spike_validation.csv` | Injected-spike precision and recall |
 | `results/metrics/performance.csv` | Repeated reference-engine timings at three input sizes |
 | `results/serving.sqlite3` | Local serving-store copy of forecasts, spikes, and metrics |

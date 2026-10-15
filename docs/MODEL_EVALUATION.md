@@ -21,3 +21,7 @@ WAPE is total absolute error divided by total absolute actual demand; it is repo
 The reference pipeline writes its current measured timings to `results/metrics/run_summary.json`; timings vary with the workload and model configuration. The Spark path writes engine, Spark version, partition, row-count, join, and timing metadata to `results/metrics/spark_run_summary.json`. These are workstation measurements, not cluster benchmarks. The recursive forecast uses the latest known price and recursively generated predictions for future lags; it is not validated as live demand.
 
 The Spark GBT challenger is implemented, but this workstation's local executor became unstable during the second model fit, so no GBT performance number is claimed. A future run with more controlled Spark resources should produce the comparison artifact.
+
+## Weekly totals and uncertainty
+
+`results/metrics/weekly_total_metrics.csv` aggregates the rolling predictions into seven-day item totals. `results/metrics/model_evidence.json` contains a 500-repeat item-level bootstrap for Random Forest absolute error minus moving-average absolute error. The 95% interval is approximately `-0.0598` to `0.2214`, which crosses zero; therefore Random Forest is not a statistically demonstrated winner over the moving average on the available origins. The Poisson simulation reports a WAPE noise-floor distribution with median approximately `0.4665`, but this is a model-based simulation rather than an observed lower bound.

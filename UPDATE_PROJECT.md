@@ -117,6 +117,16 @@ This file records the ordered improvement work requested from the critical evalu
 
 **Status:** Preliminary validation completed; more origins are required for a production decision.
 
+### Item 7 evidence follow-up: noise floor, confidence intervals, and weekly totals
+
+**Status:** Completed for the available four-origin evidence.
+
+**What changed:** Added `analytics/model_evidence.py` and `--model-evidence`. It aggregates rolling forecasts into seven-day item totals, computes model metrics, bootstraps item-level Random Forest versus moving-average absolute-error differences, and simulates a Poisson noise-floor WAPE distribution.
+
+**Validation target:** `results/metrics/weekly_total_metrics.csv` and `results/metrics/model_evidence.json` now quantify whether a daily difference is larger than observed item-level noise.
+
+**Measured result:** The 95% item-bootstrap interval for Random Forest minus moving-average MAE is `-0.0598` to `0.2214`, crossing zero. The project therefore does not claim a statistically significant Random Forest win; the moving average remains the safer headline benchmark on the available evidence.
+
 ### Item 9: Replace sparse-demand spike z-scores
 
 **Status:** Completed.
