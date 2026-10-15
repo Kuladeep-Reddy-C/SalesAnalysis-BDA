@@ -14,7 +14,7 @@ from analytics.spark_pipeline import run as run_spark
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run the retail demand pipeline')
-    parser.add_argument('--engine', choices=('pandas', 'spark'), default='pandas')
+    parser.add_argument('--engine', choices=('pandas', 'spark'), default='spark')
     parser.add_argument('--rolling-backtest', action='store_true')
     parser.add_argument('--availability-comparison', action='store_true')
     parser.add_argument('--benchmark', action='store_true')

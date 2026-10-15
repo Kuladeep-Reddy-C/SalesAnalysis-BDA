@@ -89,11 +89,11 @@ This file records the ordered improvement work requested from the critical evalu
 
 ### Item 7: Compare and justify models
 
-**Status:** Spark challenger code added; GBT validation blocked by local executor stability.
+**Status:** Spark Random Forest and GBT challengers validated; ablation and time-aware tuning remain.
 
 **What changed:** Added Spark MLlib `GBTRegressor` alongside Spark Random Forest. The Spark metrics output now includes `gbt_spark` using the same features and chronological test rows.
 
-**Validation:** The Spark Random Forest path remains validated. The GBT fit was attempted with bounded settings, but the local Spark executor shut down before producing a new metrics artifact. No GBT performance claim is made. Feature ablation and time-aware tuning remain.
+**Validation:** The default Spark run now produces `results/metrics/spark_model_metrics.csv` with Spark Random Forest WAPE `0.9079` and Spark GBT WAPE `0.8978` on the same test rows. Feature ablation and time-aware tuning remain.
 
 ### Item 8: Make the business decision forecast-dependent
 
@@ -192,3 +192,5 @@ This file records the ordered improvement work requested from the critical evalu
 **Remaining work:** Add Spark/Pandas parity fixtures, formal no-leakage tests for rolling origins, and final source/licence verification for the original dataset terms.
 
 **Parity update:** Added `analytics/spark_features.py` and a Spark/Pandas feature-parity test. The test reads a temporary CSV through Spark, compares lag and rolling features after their required history, and passes. This avoids the PySpark 3.5/Python 3.14 cloudpickle failure encountered when constructing a Spark DataFrame directly from Pandas.
+
+**Spark-first update:** `run_pipeline.py` now defaults to `--engine spark`. The normal project run uses Spark DataFrames, Spark window functions, and Spark MLlib Random Forest. Pandas remains an explicitly selected reference path for small fixtures, chart formatting, and comparison experiments; it is no longer the default analytics engine.

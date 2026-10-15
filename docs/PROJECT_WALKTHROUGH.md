@@ -476,7 +476,7 @@ The intended Spark responsibilities are:
 - Scaling to larger inputs or more stores
 - Using Spark MLlib where the runtime is configured for it
 
-The project supports two explicit paths. The reference path uses Pandas for quick local iteration; `run_pipeline.py --engine spark` runs the real Spark DataFrame, window, and Spark MLlib path. The verified Spark run processed the full available slice locally with Spark 3.5.9 and Java 17. It is a local Spark run, not a multi-node benchmark.
+The project supports two explicit paths, with Spark as the default. Running `run_pipeline.py` uses Spark DataFrames, Spark window functions, and Spark MLlib. Pandas is retained only as an explicitly selected reference path for small fixtures, chart formatting, and comparison experiments. The verified Spark run processed the full available slice locally with Spark 3.5.9 and Java 17. It is a local Spark run, not a multi-node benchmark.
 
 The Spark and Pandas window features are checked on a small CSV fixture. The test compares lag and rolling outputs after their required history, so early rows with intentionally insufficient history are not treated as mismatches.
 

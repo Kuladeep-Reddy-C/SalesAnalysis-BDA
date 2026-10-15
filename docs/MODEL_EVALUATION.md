@@ -20,7 +20,7 @@ WAPE is total absolute error divided by total absolute actual demand; it is repo
 
 The reference pipeline writes its current measured timings to `results/metrics/run_summary.json`; timings vary with the workload and model configuration. The Spark path writes engine, Spark version, partition, row-count, join, and timing metadata to `results/metrics/spark_run_summary.json`. These are workstation measurements, not cluster benchmarks. The recursive forecast uses the latest known price and recursively generated predictions for future lags; it is not validated as live demand.
 
-The Spark GBT challenger is implemented, but this workstation's local executor became unstable during the second model fit, so no GBT performance number is claimed. A future run with more controlled Spark resources should produce the comparison artifact.
+The Spark GBT challenger is now validated on the same Spark test rows: Spark Random Forest WAPE is `0.9079` and Spark GBT WAPE is `0.8978`. The bounded GBT configuration is a local demonstration; time-aware tuning and feature ablation remain future work.
 
 ## Weekly totals and uncertainty
 

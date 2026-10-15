@@ -76,7 +76,10 @@ def run(config: Config | None = None) -> dict:
         predictions = model.transform(test).withColumn("rf_prediction", F.greatest(F.lit(0.0), F.col("rf_prediction"))).withColumn("baseline_prediction", F.col("lag_7"))
         gbt_estimator = GBTRegressor(featuresCol="features", labelCol="sales", predictionCol="gbt_prediction", maxIter=10, maxDepth=3, maxBins=32, seed=config.random_seed)
         gbt_model = Pipeline(stages=[assembler, gbt_estimator]).fit(train)
-        predictions = gbt_model.transform(predictions).withColumn("gbt_prediction", F.greatest(F.lit(0.0), F.col("gbt_prediction")))
+        gbt_predictions = (gbt_model.transform(test)
+                   .select("date", "item_id", "store_id", "gbt_prediction")
+                   .withColumn("gbt_prediction", F.greatest(F.lit(0.0), F.col("gbt_prediction"))))
+        predictions = predictions.join(gbt_predictions, ["date", "item_id", "store_id"], "inner")
         metrics = [_metric_row(predictions, "historical_baseline", "baseline_prediction"), _metric_row(predictions, "random_forest_spark", "rf_prediction"), _metric_row(predictions, "gbt_spark", "gbt_prediction")]
         metrics_path = config.results / "metrics" / "spark_model_metrics.csv"
         import pandas as pd

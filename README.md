@@ -44,7 +44,7 @@ This project is built for an academic Big Data Analytics review. It connects dat
 | **4. Spark / PySpark** | The project now has an explicit Spark execution path for DataFrames, window features, chronological evaluation, and Spark MLlib Random Forest. Pandas remains available as a reference engine; no multi-node speedup is claimed. | `run_pipeline.py --engine spark`, `analytics/spark_pipeline.py`, `results/metrics/spark_run_summary.json` |
 | **5. Results and visualisation** | Produces seven saved charts plus an interactive Streamlit dashboard for trends, forecasts, spikes, metrics, and recommendations. | `results/charts/`, `dashboard/app.py` |
 | **6. Analysis decision** | Prioritise products with high recent or predicted demand for inventory review, while avoiding fabricated stockout or savings claims. | Dashboard and `docs/MODEL_EVALUATION.md` |
-| **7. Suitable ML model** | Compares seven transparent demand baselines with a deterministic Random Forest regressor using chronological test metrics. | `analytics/baselines.py`, `analytics/pipeline.py`, `results/metrics/model_metrics.csv` |
+| **7. Suitable ML model** | Compares seven reference baselines with Spark MLlib Random Forest and GBT challengers using chronological test metrics. | `analytics/baselines.py`, `analytics/spark_pipeline.py`, `results/metrics/spark_model_metrics.csv` |
 | **8. Performance analysis** | Persists MAE, RMSE, WAPE, preprocessing time, training time, prediction time, row counts, and split dates. | `results/metrics/`, `docs/MODEL_EVALUATION.md` |
 
 ### Verified dataset
@@ -100,9 +100,9 @@ The source files remain in `../Review2`; existing loaders, tables, and infrastru
 .venv/bin/python run_pipeline.py
 ```
 
-This creates the quality report, joined daily dataset, model, predictions, recursive seven-day forecast, demand-spike records, metrics, and charts.
+This runs the PySpark pipeline by default and creates the quality report, joined daily dataset, Spark MLlib model, predictions, metrics, and Spark artifacts. Use `--engine pandas` only for the optional reference implementation and Pandas chart generation.
 
-To execute the Spark path explicitly:
+The equivalent explicit Spark command is:
 
 ```bash
 .venv/bin/python run_pipeline.py --engine spark
