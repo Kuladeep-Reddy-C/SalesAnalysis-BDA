@@ -102,6 +102,15 @@ To execute the Spark path explicitly:
 
 The Spark run records `engine`, Spark version, master, shuffle partitions, row counts, join counts, and timings in `results/metrics/spark_run_summary.json`. It writes Spark-specific metrics and predictions under `results/metrics/spark_model_metrics.csv` and `results/predictions/spark_test_predictions.csv`.
 
+To run the optional simulated stream:
+
+```bash
+.venv/bin/python -m stream.replay --days 28
+.venv/bin/python -m stream.stream_job
+```
+
+This replays historical rows as JSON micro-batches through Spark Structured Streaming. It is explicitly labelled `simulated_historical_replay`, not live data. Micro-batch summaries and simulated spike records are written under `results/stream/`, with checkpoint state under `results/checkpoints/`.
+
 ### 3. Run tests
 
 ```bash

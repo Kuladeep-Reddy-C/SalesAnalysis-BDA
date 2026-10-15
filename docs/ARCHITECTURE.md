@@ -7,5 +7,6 @@
 5. **Models**: `lag_7` historical baseline and scikit-learn Random Forest. The project includes PySpark support utilities and PySpark in requirements, but the measured end-to-end run used Pandas fallback on this workstation.
 6. **Outputs**: chronological test predictions, metrics, recursive seven-day forecast, spike records, charts, and a pickled model.
 7. **Presentation**: Streamlit reads outputs only. It displays data source and execution mode.
+8. **Simulated stream**: `stream/replay.py` emits historical day-sized JSON batches and `stream/stream_job.py` processes them with Spark Structured Streaming, checkpointing, and labelled micro-batch outputs.
 
 No HBase tables are changed by Review3. No distributed speedup is claimed. HDFS/HBase integration is an optional future adapter because live HBase access could not be verified during the audit.

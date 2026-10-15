@@ -66,3 +66,15 @@ This file records the ordered improvement work requested from the critical evalu
 **Measured finding:** Unavailable prices are concentrated early in product history: unavailable rates are `62.4%` at age 0-28 days, `58.3%` at 29-90 days, `49.9%` at 91-365 days, and `11.3%` after 366 days. This supports treating missing prices as an availability signal rather than assuming the median price is always observed. The age-bucket evidence is persisted in `results/metrics/price_availability.csv`.
 
 **Remaining work:** Add a measured model comparison with unavailable rows excluded versus retained with an `is_available` feature before changing the production training policy.
+
+### Item 5: Add simulated real-time processing
+
+**Status:** Core replay and streaming job completed; dashboard live tab remains.
+
+**What was there:** The project only described simulated streaming as a future option and had no replay generator or Structured Streaming job.
+
+**What changed:** Added `stream/replay.py` to emit historical sales as day-sized JSON micro-batches and `stream/stream_job.py` to consume them with Spark Structured Streaming, checkpointing, micro-batch summaries, and simulated spike output. Every output is labelled `simulated_historical_replay`.
+
+**Validation:** Seven historical days produced 1,848 rows across 7 batches. Structured Streaming processed them successfully in approximately 4.8 seconds and wrote `results/stream/microbatch_metrics.jsonl` and `results/stream/simulated_spikes.jsonl`. This is a replay of historical data, not a live external feed.
+
+**Remaining work:** Add a dashboard Live tab that refreshes these serving outputs while keeping the simulated banner visible.
