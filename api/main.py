@@ -13,6 +13,19 @@ app = FastAPI(title="Retail Demand Lab API", version="1.0")
 backend = ServingBackend(RESULTS)
 
 
+@app.get("/")
+def root() -> dict:
+    return {
+        "service": "Retail Demand Lab API",
+        "backend": "/backend-status",
+        "interactive_docs": "/docs",
+        "metrics": "/metrics",
+        "forecast_example": "/forecast/HOBBIES_1_001",
+        "decisions": "/decisions",
+        "spikes": "/spikes",
+    }
+
+
 def read_csv(name: str) -> pd.DataFrame:
     path = RESULTS / name
     if not path.exists():
