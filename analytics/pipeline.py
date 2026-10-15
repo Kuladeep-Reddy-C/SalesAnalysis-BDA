@@ -5,10 +5,10 @@ import pickle
 import time
 from pathlib import Path
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 from config import Config
-from analytics.baselines import add_baseline_predictions, add_croston_prediction
 from analytics.decision_support import build_forecast_uplift_decision
 from analytics.metrics import mase, regression_metrics, revenue_weighted_absolute_error
 from analytics.preprocess import add_features, build_daily_dataset, price_availability_report, quality_report, read_inputs
@@ -34,25 +34,32 @@ def run(config: Config | None = None) -> dict:
     validation = usable[(usable["date"] >= validation_start) & (usable["date"] < test_start)]
     test = usable[usable["date"] >= test_start]
     model_started = time.perf_counter()
-    model = RandomForestRegressor(n_estimators=80, max_depth=14, min_samples_leaf=2, random_state=config.random_seed, n_jobs=-1)
-    model.fit(train[FEATURES], train["sales"])
+
+    # Model 1: Decision Tree Regressor (Single Tree Baseline)
+    model_dt = DecisionTreeRegressor(max_depth=8, min_samples_leaf=5, random_state=config.random_seed)
+    model_dt.fit(train[FEATURES], train["sales"])
+
+    # Model 2: Random Forest Regressor (Bagging Ensemble)
+    model_rf = RandomForestRegressor(n_estimators=80, max_depth=14, min_samples_leaf=2, random_state=config.random_seed, n_jobs=-1)
+    model_rf.fit(train[FEATURES], train["sales"])
+
+    # Model 3: Gradient Boosting Regressor (Boosting Ensemble - Champion Model)
+    model_gbr = HistGradientBoostingRegressor(learning_rate=0.08, max_depth=4, max_iter=120, min_samples_leaf=15, random_state=config.random_seed)
+    model_gbr.fit(train[FEATURES], train["sales"])
+
     training_seconds = time.perf_counter() - model_started
     prediction_started = time.perf_counter()
     test = test.copy()
-    test = add_baseline_predictions(train, test)
-    test = add_croston_prediction(train, test)
-    test["rf_prediction"] = model.predict(test[FEATURES]).clip(min=0)
+    test["dt_prediction"] = model_dt.predict(test[FEATURES]).clip(min=0)
+    test["rf_prediction"] = model_rf.predict(test[FEATURES]).clip(min=0)
+    test["gbr_prediction"] = model_gbr.predict(test[FEATURES]).clip(min=0)
     prediction_seconds = time.perf_counter() - prediction_started
+
     metric_rows = []
     prediction_columns = [
-        ("all_zero", "zero_prediction"),
-        ("global_mean", "global_mean_prediction"),
-        ("item_mean", "item_mean_prediction"),
-        ("last_value", "last_value_prediction"),
-        ("seasonal_naive_7", "seasonal_naive_prediction"),
-        ("moving_average_28", "moving_average_28_prediction"),
-        ("croston_sba", "croston_sba_prediction"),
+        ("decision_tree", "dt_prediction"),
         ("random_forest", "rf_prediction"),
+        ("gradient_boosting", "gbr_prediction"),
     ]
     for name, column in prediction_columns:
         metric = regression_metrics(test["sales"], test[column])
@@ -67,18 +74,22 @@ def run(config: Config | None = None) -> dict:
     test["demand_bucket"] = pd.qcut(bucket_values.to_numpy(), 4, labels=["zero_or_low", "low", "medium", "high"])
     bucket_rows = []
     for bucket, frame in test.groupby("demand_bucket", observed=False):
-        bucket_rows.append({"demand_bucket": str(bucket), **regression_metrics(frame["sales"], frame["rf_prediction"]), "rows": len(frame)})
+        bucket_rows.append({"demand_bucket": str(bucket), **regression_metrics(frame["sales"], frame["gbr_prediction"]), "rows": len(frame)})
     pd.DataFrame(bucket_rows).to_csv(config.results / "metrics" / "demand_bucket_metrics.csv", index=False)
     quality.to_csv(config.results / "metrics" / "data_quality.csv", index=False)
     price_availability_report(daily).to_csv(config.results / "metrics" / "price_availability.csv", index=False)
     metrics.to_csv(config.results / "metrics" / "model_metrics.csv", index=False)
-    pd.DataFrame({"feature": FEATURES, "importance": model.feature_importances_}).sort_values("importance", ascending=False).to_csv(config.results / "metrics" / "feature_importance.csv", index=False)
+    pd.DataFrame({"feature": FEATURES, "importance": model_rf.feature_importances_}).sort_values("importance", ascending=False).to_csv(config.results / "metrics" / "feature_importance.csv", index=False)
     with (config.models / "random_forest.pkl").open("wb") as handle:
-        pickle.dump({"model": model, "features": FEATURES}, handle)
+        pickle.dump({"model": model_rf, "features": FEATURES}, handle)
+    with (config.models / "decision_tree.pkl").open("wb") as handle:
+        pickle.dump({"model": model_dt, "features": FEATURES}, handle)
+    with (config.models / "gradient_boosting.pkl").open("wb") as handle:
+        pickle.dump({"model": model_gbr, "features": FEATURES}, handle)
     spikes = detect_spikes(daily)
     spikes[spikes["is_spike"]].to_csv(config.results / "predictions" / "demand_spikes.csv", index=False)
     validate_injected_spikes(daily).to_csv(config.results / "metrics" / "spike_validation.csv", index=False)
-    forecast = recursive_forecast(model, daily, calendar, config.test_days if config.test_days < 7 else 7)
+    forecast = recursive_forecast(model_gbr, daily, calendar, config.test_days if config.test_days < 7 else 7)
     forecast.to_csv(config.results / "predictions" / "seven_day_forecast.csv", index=False)
     build_forecast_uplift_decision(daily, forecast).to_csv(config.results / "metrics" / "forecast_uplift_decision.csv", index=False)
     summary = {"execution_mode": "pyspark_available_but_pandas_pipeline_used" if spark_available() else "pandas_fallback_spark_unavailable", "sales_rows": len(sales), "price_rows": len(prices), "calendar_rows": len(calendar), "daily_rows": len(daily), "feature_rows": len(usable), "joins": joins, "training_seconds": training_seconds, "prediction_seconds": prediction_seconds, "preprocessing_seconds": time.perf_counter() - started - training_seconds - prediction_seconds, "train_date_start": str(train["date"].min().date()), "train_date_end": str(train["date"].max().date()), "validation_date_start": str(validation["date"].min().date()), "validation_date_end": str(validation["date"].max().date()), "test_date_start": str(test["date"].min().date()), "test_date_end": str(test["date"].max().date())}

@@ -18,10 +18,11 @@ def generate_charts(config: Config | None = None) -> None:
     daily.sample(min(5000, len(daily)), random_state=42).plot.scatter(x='sell_price', y='sales', alpha=.25, title='Price versus sales')
     plt.tight_layout(); plt.savefig(charts / 'price_vs_sales.png'); plt.close()
     predictions = __import__('pandas').read_csv(config.results / 'predictions' / 'test_predictions.csv', parse_dates=['date'])
-    predictions.groupby('date')[['sales', 'rf_prediction']].sum().plot(title='Actual versus predicted sales')
+    pred_cols = ['sales'] + [c for c in ['gbr_prediction', 'rf_prediction', 'dt_prediction'] if c in predictions.columns]
+    predictions.groupby('date')[pred_cols].sum().plot(title='Actual versus ML Model Predicted Sales')
     plt.ylabel('Units sold'); plt.tight_layout(); plt.savefig(charts / 'actual_vs_predicted.png'); plt.close()
     metrics = __import__('pandas').read_csv(config.results / 'metrics' / 'model_metrics.csv').set_index('model')[['mae', 'rmse', 'wape']]
-    metrics.plot.bar(title='Model performance comparison'); plt.tight_layout(); plt.savefig(charts / 'model_performance.png'); plt.close()
+    metrics.plot.bar(title='Comparison of 3 ML Models (Decision Tree vs Random Forest vs Gradient Boosting)'); plt.tight_layout(); plt.savefig(charts / 'model_performance.png'); plt.close()
     spikes = __import__('pandas').read_csv(config.results / 'predictions' / 'demand_spikes.csv')
     if len(spikes):
         spikes['date'] = __import__('pandas').to_datetime(spikes['date'])

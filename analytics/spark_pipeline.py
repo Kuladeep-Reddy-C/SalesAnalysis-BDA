@@ -31,7 +31,7 @@ def run(config: Config | None = None) -> dict:
     """Run the verified batch path with Spark DataFrames and Spark MLlib."""
     from pyspark.ml import Pipeline
     from pyspark.ml.feature import VectorAssembler
-    from pyspark.ml.regression import GBTRegressor, RandomForestRegressor
+    from pyspark.ml.regression import DecisionTreeRegressor, GBTRegressor, RandomForestRegressor
     from pyspark.sql import functions as F
     from pyspark.sql.window import Window
 
@@ -71,20 +71,33 @@ def run(config: Config | None = None) -> dict:
         test = featured.filter(F.col("date") >= F.lit(test_start))
 
         assembler = VectorAssembler(inputCols=FEATURES, outputCol="features")
+        train_assembled = assembler.transform(train)
+        test_assembled = assembler.transform(test)
+
+        # Model 1: Decision Tree Regressor (Spark MLlib)
+        dt_estimator = DecisionTreeRegressor(featuresCol="features", labelCol="sales", predictionCol="dt_prediction", maxDepth=6, seed=config.random_seed)
+        dt_model = dt_estimator.fit(train_assembled)
+        predictions = dt_model.transform(test_assembled).withColumn("dt_prediction", F.greatest(F.lit(0.0), F.col("dt_prediction")))
+
+        # Model 2: Random Forest Regressor (Spark MLlib)
         estimator = RandomForestRegressor(featuresCol="features", labelCol="sales", predictionCol="rf_prediction", numTrees=24, maxDepth=8, minInstancesPerNode=5, seed=config.random_seed)
-        model = Pipeline(stages=[assembler, estimator]).fit(train)
-        predictions = model.transform(test).withColumn("rf_prediction", F.greatest(F.lit(0.0), F.col("rf_prediction"))).withColumn("baseline_prediction", F.col("lag_7"))
-        gbt_estimator = GBTRegressor(featuresCol="features", labelCol="sales", predictionCol="gbt_prediction", maxIter=10, maxDepth=3, maxBins=32, seed=config.random_seed)
-        gbt_model = Pipeline(stages=[assembler, gbt_estimator]).fit(train)
-        gbt_predictions = (gbt_model.transform(test)
-                   .select("date", "item_id", "store_id", "gbt_prediction")
-                   .withColumn("gbt_prediction", F.greatest(F.lit(0.0), F.col("gbt_prediction"))))
-        predictions = predictions.join(gbt_predictions, ["date", "item_id", "store_id"], "inner")
-        metrics = [_metric_row(predictions, "historical_baseline", "baseline_prediction"), _metric_row(predictions, "random_forest_spark", "rf_prediction"), _metric_row(predictions, "gbt_spark", "gbt_prediction")]
+        model = estimator.fit(train_assembled)
+        predictions = model.transform(predictions).withColumn("rf_prediction", F.greatest(F.lit(0.0), F.col("rf_prediction")))
+
+        # Model 3: GBT Regressor (Spark MLlib)
+        gbt_estimator = GBTRegressor(featuresCol="features", labelCol="sales", predictionCol="gbt_prediction", maxIter=15, maxDepth=4, maxBins=32, seed=config.random_seed)
+        gbt_model = gbt_estimator.fit(train_assembled)
+        predictions = gbt_model.transform(predictions).withColumn("gbt_prediction", F.greatest(F.lit(0.0), F.col("gbt_prediction")))
+
+        metrics = [
+            _metric_row(predictions, "decision_tree_spark", "dt_prediction"),
+            _metric_row(predictions, "random_forest_spark", "rf_prediction"),
+            _metric_row(predictions, "gradient_boosting_spark", "gbt_prediction"),
+        ]
         metrics_path = config.results / "metrics" / "spark_model_metrics.csv"
         import pandas as pd
         pd.DataFrame(metrics).to_csv(metrics_path, index=False)
-        predictions.select("date", "item_id", "store_id", "sales", "baseline_prediction", "rf_prediction", "gbt_prediction").toPandas().to_csv(config.results / "predictions" / "spark_test_predictions.csv", index=False)
+        predictions.select("date", "item_id", "store_id", "sales", "dt_prediction", "rf_prediction", "gbt_prediction").toPandas().to_csv(config.results / "predictions" / "spark_test_predictions.csv", index=False)
         model_path = config.models / "spark_random_forest"
         model.write().overwrite().save(str(model_path))
         summary = {

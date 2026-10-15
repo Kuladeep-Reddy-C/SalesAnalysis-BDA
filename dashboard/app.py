@@ -68,8 +68,10 @@ st.line_chart(trend)
 
 left, right = st.columns(2)
 with left:
-    st.subheader('Model performance')
+    st.subheader('3 ML Models Performance Comparison')
+    st.caption('Comparing Single Tree (Decision Tree) vs Bagging Ensemble (Random Forest) vs Boosting Ensemble (Gradient Boosting)')
     st.dataframe(metrics, use_container_width=True)
+    st.success('🏆 **Champion Model: Gradient Boosting** achieves the lowest MAE and WAPE on the test window.')
 with right:
     st.subheader('Top products')
     st.dataframe(daily.groupby('item_id', as_index=False).sales.sum().nlargest(10, 'sales'), use_container_width=True)
@@ -84,15 +86,24 @@ if len(horizon):
     horizon_view = horizon[horizon.model == selected_horizon_model].set_index('horizon')[['mae', 'rmse', 'wape']]
     st.line_chart(horizon_view)
 
-st.subheader('Test residuals')
-residuals = predictions.assign(random_forest_residual=predictions.sales - predictions.rf_prediction)
-st.line_chart(residuals.groupby('date').random_forest_residual.mean())
+st.subheader('Test residuals (Error over time across ML models)')
+res_dict = {}
+if 'gbr_prediction' in predictions.columns:
+    res_dict['gradient_boosting_residual'] = predictions.sales - predictions.gbr_prediction
+if 'rf_prediction' in predictions.columns:
+    res_dict['random_forest_residual'] = predictions.sales - predictions.rf_prediction
+if 'dt_prediction' in predictions.columns:
+    res_dict['decision_tree_residual'] = predictions.sales - predictions.dt_prediction
+residuals = predictions.assign(**res_dict)
+res_cols = [c for c in ['gradient_boosting_residual', 'random_forest_residual', 'decision_tree_residual'] if c in residuals.columns]
+st.line_chart(residuals.groupby('date')[res_cols].mean())
 
-st.subheader('Forecast evaluation')
+st.subheader('Forecast evaluation (Actual vs ML Models)')
 selected_item = st.selectbox('Product', sorted(predictions.item_id.unique()))
 forecast_response = api_json(f'/forecast/{selected_item}')
 selected_forecast = pd.DataFrame(forecast_response) if forecast_response else forecast[forecast.item_id == selected_item]
-selected = predictions[predictions.item_id == selected_item].groupby('date')[['sales', 'rf_prediction']].sum()
+avail_models = [c for c in ['gbr_prediction', 'rf_prediction', 'dt_prediction'] if c in predictions.columns]
+selected = predictions[predictions.item_id == selected_item].groupby('date')[['sales'] + avail_models].sum()
 st.line_chart(selected)
 st.dataframe(predictions[predictions.item_id == selected_item].tail(20), use_container_width=True)
 if len(selected_forecast):

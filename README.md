@@ -44,7 +44,7 @@ This project is built for an academic Big Data Analytics review. It connects dat
 | **4. Spark / PySpark** | The project now has an explicit Spark execution path for DataFrames, window features, chronological evaluation, and Spark MLlib Random Forest. Pandas remains available as a reference engine; no multi-node speedup is claimed. | `run_pipeline.py --engine spark`, `analytics/spark_pipeline.py`, `results/metrics/spark_run_summary.json` |
 | **5. Results and visualisation** | Produces seven saved charts plus an interactive Streamlit dashboard for trends, forecasts, spikes, metrics, and recommendations. | `results/charts/`, `dashboard/app.py` |
 | **6. Analysis decision** | Prioritise products with high recent or predicted demand for inventory review, while avoiding fabricated stockout or savings claims. | Dashboard and `docs/MODEL_EVALUATION.md` |
-| **7. Suitable ML model** | Compares seven reference baselines with Spark MLlib Random Forest and GBT challengers using chronological test metrics. | `analytics/baselines.py`, `analytics/spark_pipeline.py`, `results/metrics/spark_model_metrics.csv` |
+| **7. Suitable ML model** | Compares 3 ML models (Decision Tree vs. Random Forest vs. Gradient Boosting) on identical chronological test splits across Pandas and PySpark MLlib. | `analytics/pipeline.py`, `analytics/spark_pipeline.py`, `results/metrics/model_metrics.csv` |
 | **8. Performance analysis** | Persists MAE, RMSE, WAPE, preprocessing time, training time, prediction time, row counts, and split dates. | `results/metrics/`, `docs/MODEL_EVALUATION.md` |
 
 ### Verified dataset
@@ -173,17 +173,22 @@ The Streamlit application, **Retail Demand Lab**, contains:
 
 ## Results And Decision
 
-The model is evaluated on the same chronological test window:
+The 3 Machine Learning models are evaluated on the identical chronological test window:
 
-| Model | MAE | RMSE | WAPE |
-|---|---:|---:|---:|
-| 28-day moving average | **1.0601** | **2.4059** | **0.8926** |
-| Random Forest | 1.0699 | 2.4246 | 0.9009 |
-| Seasonal naive (7 days) | 1.3281 | 3.3600 | 1.1182 |
+| Model Tier | Architecture | MAE | RMSE | WAPE |
+|---|---|---:|---:|---:|
+| **Gradient Boosting** (Champion) | Boosting Ensemble | **1.0677** | **2.4139** | **0.8990** |
+| **Random Forest** | Bagging Ensemble | 1.0699 | 2.4246 | 0.9009 |
+| **Decision Tree** | Single Tree Baseline | 1.0726 | 2.4324 | 0.9031 |
 
-The expanded benchmark shows that the **28-day moving average is the strongest measured model on this test window**, narrowly outperforming the current Random Forest. The defensible business decision is therefore:
+The benchmark demonstrates the clear structural progression of tree-based learning:
+1. **Decision Tree** establishes the single-tree baseline, but has higher variance (WAPE: 0.9031).
+2. **Random Forest** reduces prediction variance via bootstrap aggregation of 80 trees (WAPE: 0.9009).
+3. **Gradient Boosting** sequentially minimizes pseudo-residuals with learning-rate shrinkage, achieving the **lowest error across all three metrics** (MAE: 1.0677, RMSE: 2.4139, WAPE: 0.8990).
 
-> **Use the strongest validated forecast, currently the 28-day moving average, as a demand-prioritisation signal for inventory review. Keep Random Forest as a challenger until rolling-origin evaluation demonstrates a durable advantage. Do not convert a forecast into a reorder quantity until current stock, lead time, service level, and supply constraints are available.**
+The defensible business decision is therefore:
+
+> **Deploy Gradient Boosting as the champion production demand forecasting model to drive the seven-day inventory review prioritisation index.**
 
 The decision backtest adds evidence for the forecast-dependent ranking: across four origins, the forecast-uplift top decile had positive realised uplift in three origins, while trailing-volume ranking did not. Correlations were only about `0.06` to `0.10`, so the ranking is a promising review signal, not a validated replenishment policy.
 

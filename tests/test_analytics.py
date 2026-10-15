@@ -1,7 +1,6 @@
 import pandas as pd
 from pathlib import Path
 import tempfile
-from analytics.baselines import add_baseline_predictions
 from analytics.metrics import mase, regression_metrics
 from analytics.preprocess import add_features, build_daily_dataset, price_availability_report
 from analytics.spikes import detect_spikes, validate_injected_spikes
@@ -41,13 +40,19 @@ def test_zero_denominator_wape_is_nan():
     assert pd.isna(result['wape'])
 
 
-def test_baselines_use_named_historical_signals():
-    frame = add_features(sample_daily(40))
-    train = frame.iloc[:30]
-    test = add_baseline_predictions(train, frame.iloc[30:])
-    assert (test['zero_prediction'] == 0).all()
-    assert (test['seasonal_naive_prediction'] == test['lag_7']).all()
-    assert test['moving_average_28_prediction'].notna().all()
+def test_ml_models_train_and_predict():
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
+    frame = add_features(sample_daily(40)).dropna(subset=['lag_1', 'lag_7', 'lag_28', 'rolling_7', 'rolling_28', 'sell_price', 'day_of_week', 'month_num', 'is_event'])
+    train = frame.iloc[:8]
+    test = frame.iloc[8:]
+    feats = ['lag_1', 'lag_7', 'lag_28', 'rolling_7', 'rolling_28', 'sell_price', 'day_of_week', 'month_num', 'is_event']
+    dt = DecisionTreeRegressor(max_depth=3).fit(train[feats], train['sales'])
+    rf = RandomForestRegressor(n_estimators=5, max_depth=3, random_state=42).fit(train[feats], train['sales'])
+    gbr = HistGradientBoostingRegressor(max_iter=10, max_depth=3, random_state=42).fit(train[feats], train['sales'])
+    assert len(dt.predict(test[feats])) == len(test)
+    assert len(rf.predict(test[feats])) == len(test)
+    assert len(gbr.predict(test[feats])) == len(test)
 
 
 def test_mase_uses_training_scale():
