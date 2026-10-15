@@ -20,6 +20,10 @@ forecast = pd.read_csv(forecast_path, parse_dates=['forecast_date']) if forecast
 daily = pd.read_csv(RESULTS / 'daily_dataset.csv', parse_dates=['date'])
 spikes_path = RESULTS / 'predictions' / 'demand_spikes.csv'
 spikes = pd.read_csv(spikes_path, parse_dates=['date']) if spikes_path.exists() else pd.DataFrame()
+importance_path = RESULTS / 'metrics' / 'feature_importance.csv'
+importance = pd.read_csv(importance_path) if importance_path.exists() else pd.DataFrame()
+stream_metrics_path = RESULTS / 'stream' / 'microbatch_metrics.jsonl'
+stream_metrics = pd.read_json(stream_metrics_path, lines=True) if stream_metrics_path.exists() else pd.DataFrame()
 
 cols = st.columns(4)
 cols[0].metric('Total sales', f"{daily.sales.sum():,.0f}")
@@ -27,6 +31,11 @@ cols[1].metric('Products', daily.item_id.nunique())
 cols[2].metric('Stores', daily.store_id.nunique())
 cols[3].metric('Rows', f"{len(daily):,}")
 st.write(f"Coverage: {daily.date.min().date()} to {daily.date.max().date()} | Source: Review2 CSV files | Mode: {summary['execution_mode']}")
+if len(stream_metrics):
+    st.subheader('Simulated live replay')
+    st.warning('Simulated stream replaying historical data. This is not a live external feed.')
+    st.write(f"Processed micro-batches: {len(stream_metrics):,} | Replayed rows: {int(stream_metrics['rows'].sum()):,}")
+    st.dataframe(stream_metrics, use_container_width=True)
 
 trend = daily.groupby('date', as_index=False).sales.sum().set_index('date')
 st.subheader('Sales trend')
@@ -39,6 +48,10 @@ with left:
 with right:
     st.subheader('Top products')
     st.dataframe(daily.groupby('item_id', as_index=False).sales.sum().nlargest(10, 'sales'), use_container_width=True)
+
+if len(importance):
+    st.subheader('Random Forest feature importance')
+    st.bar_chart(importance.set_index('feature'))
 
 st.subheader('Forecast evaluation')
 selected_item = st.selectbox('Product', sorted(predictions.item_id.unique()))

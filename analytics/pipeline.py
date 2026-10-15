@@ -71,6 +71,7 @@ def run(config: Config | None = None) -> dict:
     quality.to_csv(config.results / "metrics" / "data_quality.csv", index=False)
     price_availability_report(daily).to_csv(config.results / "metrics" / "price_availability.csv", index=False)
     metrics.to_csv(config.results / "metrics" / "model_metrics.csv", index=False)
+    pd.DataFrame({"feature": FEATURES, "importance": model.feature_importances_}).sort_values("importance", ascending=False).to_csv(config.results / "metrics" / "feature_importance.csv", index=False)
     with (config.models / "random_forest.pkl").open("wb") as handle:
         pickle.dump({"model": model, "features": FEATURES}, handle)
     spikes = detect_spikes(daily)

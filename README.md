@@ -135,6 +135,8 @@ The Streamlit application, **Retail Demand Lab**, contains:
 - **Demand spikes:** flagged product-store-date observations, expected demand, score, and explanation
 - **Model performance:** baseline versus Random Forest MAE, RMSE, and WAPE
 - **Inventory decision support:** demand-based prioritisation without invented inventory quantities or savings
+- **Simulated live replay:** historical micro-batches, throughput counts, and an explicit simulated-data warning
+- **Model transparency:** persisted Random Forest feature importance
 
 <p align="center">
 	<img src="results/charts/model_performance.png" alt="Model performance comparison" width="31%">
@@ -179,6 +181,7 @@ These are workstation measurements for the verified local run. They are not a cl
 | `results/metrics/demand_bucket_metrics.csv` | Random Forest error by item demand bucket |
 | `results/metrics/horizon_metrics.csv` | Rolling-origin error for forecast horizons 1 through 7 |
 | `results/metrics/price_availability.csv` | Missing-price rates by product age |
+| `results/metrics/feature_importance.csv` | Random Forest feature importance |
 | `results/metrics/run_summary.json` | Execution mode, timings, joins, and split dates |
 | `results/predictions/test_predictions.csv` | Historical holdout predictions |
 | `results/predictions/seven_day_forecast.csv` | Recursive future forecast rows |

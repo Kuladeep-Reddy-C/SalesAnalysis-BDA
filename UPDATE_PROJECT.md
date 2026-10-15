@@ -78,3 +78,11 @@ This file records the ordered improvement work requested from the critical evalu
 **Validation:** Seven historical days produced 1,848 rows across 7 batches. Structured Streaming processed them successfully in approximately 4.8 seconds and wrote `results/stream/microbatch_metrics.jsonl` and `results/stream/simulated_spikes.jsonl`. This is a replay of historical data, not a live external feed.
 
 **Remaining work:** Add a dashboard Live tab that refreshes these serving outputs while keeping the simulated banner visible.
+
+### Dashboard follow-up: simulated replay and feature transparency
+
+**Status:** Completed.
+
+**What changed:** The dashboard now displays available simulated-stream micro-batch metrics with a visible historical-replay warning and displays persisted Random Forest feature importance. The pipeline writes `results/metrics/feature_importance.csv`.
+
+**Validation:** The code path is covered by syntax checks and the existing test suite; real stream metrics were already generated under `results/stream/`.
