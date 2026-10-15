@@ -185,6 +185,8 @@ The expanded benchmark shows that the **28-day moving average is the strongest m
 
 > **Use the strongest validated forecast, currently the 28-day moving average, as a demand-prioritisation signal for inventory review. Keep Random Forest as a challenger until rolling-origin evaluation demonstrates a durable advantage. Do not convert a forecast into a reorder quantity until current stock, lead time, service level, and supply constraints are available.**
 
+The decision backtest adds evidence for the forecast-dependent ranking: across four origins, the forecast-uplift top decile had positive realised uplift in three origins, while trailing-volume ranking did not. Correlations were only about `0.06` to `0.10`, so the ranking is a promising review signal, not a validated replenishment policy.
+
 This conclusion is evidence-based and deliberately limited. It does not claim causation from price or events, a live feed, multi-node speedup, stockout probability, or monetary savings.
 
 ## Performance Snapshot
@@ -210,6 +212,7 @@ These are workstation measurements for the verified local run. They are not a cl
 | `results/metrics/price_availability.csv` | Missing-price rates by product age |
 | `results/metrics/feature_importance.csv` | Random Forest feature importance |
 | `results/metrics/forecast_uplift_decision.csv` | Forecast-dependent inventory review ranking |
+| `results/metrics/decision_backtest.csv` | Forecast ranking versus realised uplift and trailing-volume ranking |
 | `results/metrics/spike_validation.csv` | Injected-spike precision and recall |
 | `results/metrics/performance.csv` | Repeated reference-engine timings at three input sizes |
 | `results/serving.sqlite3` | Local serving-store copy of forecasts, spikes, and metrics |

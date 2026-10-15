@@ -105,6 +105,18 @@ This file records the ordered improvement work requested from the critical evalu
 
 **Validation:** `results/metrics/forecast_uplift_decision.csv` and the dashboard decision section now depend on forecast output. The 10% threshold is an explicit planning assumption, not a measured financial claim.
 
+### Decision validation follow-up
+
+**Status:** Implemented and ready for real-data validation.
+
+**What changed:** Added `analytics/decision_backtest.py` and `--decision-backtest`. It ranks eligible product-store pairs by rolling Random Forest forecast uplift, compares the ranking with trailing-volume ranking, applies a minimum trailing-28-day volume threshold, and measures realised next-seven-day uplift, realised value, and Spearman agreement.
+
+**Validation target:** `results/metrics/decision_backtest.csv` will determine whether the forecast ranking adds realised uplift over the naive ranking.
+
+**Measured result:** Across four origins, forecast-uplift top-decile realised uplift was `+33.0%`, `+27.9%`, `+42.9%`, and `-3.3%`; trailing-volume ranking produced `-5.3%`, `-8.6%`, `-18.5%`, and `-22.7%`. The forecast ranking added a useful signal in 3 of 4 origins, but correlations were low (`0.06` to `0.10`), so this is promising rather than conclusive. The comparison uses a seven-day-equivalent trailing baseline and a minimum 3-unit trailing volume.
+
+**Status:** Preliminary validation completed; more origins are required for a production decision.
+
 ### Item 9: Replace sparse-demand spike z-scores
 
 **Status:** Completed.
