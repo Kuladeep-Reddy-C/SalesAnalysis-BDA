@@ -1,0 +1,190 @@
+You should treat this review as a complete Big Data Analytics project, not just a Spark program. Your faculty expects you to demonstrate the full pipeline: data ingestion → analysis → visualization → decision-making → machine learning → performance evaluation → full-stack presentation.
+
+Since you have already worked with Hadoop 3.4.2, HBase 2.6.7, and the retail sales dataset, I recommend building on that existing work instead of starting from scratch. You already have three HBase tables: `retail_sales`, `retail_prices`, and `retail_calendar`.&#x20;
+
+## 1. My recommended project
+
+[Unilever Retail Management Dashboard Case study :: Behance](https://images.openai.com/static-rsc-4/nUZvRqxrKXAoCnC1cn5M0z5wHCWhQPgs9gLbl6zN6_xiBwUHm0ftEUBkI40LuiqJ5BmT0AbzE03_64XO-GgKAAXBvwt6k6DNlSpQv2yxOrhh6BWNK6mnrRJeKdYQ_i0kc081VrPhEQaJbh6xWXBU8-dVwZZUxdDWo9gWRJWJc1s?purpose=inline)
+
+[behance.net](https://www.behance.net/gallery/234096193/Unilever-Retail-Management-Dashboard-Case-study)
+
+# Retail Sales Forecasting and Demand Spike Detection Using PySpark
+
+Goal: Analyze historical retail sales, predict future demand, identify unusual sales spikes, and help a retailer make better inventory decisions.
+
+PySpark
+
+Hadoop / HDFS
+
+HBase
+
+Python ML
+
+Streamlit
+
+Why this is a good fit:
+
+- You can reuse your existing retail data and HBase setup.
+- PySpark handles distributed preprocessing, aggregations, and feature engineering.
+- Machine learning produces a measurable prediction result.
+- Visualizations make your analysis easy to explain during the review.
+- HBase can act as the NoSQL backend, and Streamlit can provide the full-stack interface.
+
+One important distinction: your existing retail dataset is historical, not inherently real-time. To demonstrate real-time processing, you can replay records as a live stream or ingest a live data source. Clearly label simulated streaming if you replay historical records.
+
+## 2. The exact analysis question to present
+
+Your analysis question should be specific enough to answer with data, Spark, and a machine learning model.
+
+PROPOSED RESEARCH QUESTION
+
+Can we predict the next 7 days of product demand for each store using historical sales, calendar events, and selling prices, and use those predictions to improve inventory planning?
+
+Supporting questions:
+
+- Which products and stores have the highest demand?
+- How do weekends, holidays, and prices affect sales?
+- Which products show unusual demand spikes?
+- How accurately can our model predict future sales?
+- Can the predictions help reduce overstocking and stockout risk?
+
+This gives you a clear path from exploratory analysis to a practical business decision.
+
+## 3. What you need to implement
+
+Step 1 — Data ingestion
+
+Use your existing retail sales, price, and calendar data. Read the records from HBase or your original CSV files, and use HDFS for distributed storage if needed.
+
+Deliverable: a verified dataset with product, store, date, sales, price, and calendar attributes.
+
+Step 2 — Preprocessing and EDA
+
+Use PySpark DataFrames to inspect missing values, duplicates, data types, sales distributions, daily trends, product-level demand, store-level demand, and price effects.
+
+Deliverable: cleaned data and at least 4 meaningful charts.
+
+Step 3 — Spark processing
+
+Use PySpark for date conversion, joins, aggregations, lag features, rolling averages, and grouping by product and store.
+
+Deliverable: a reusable Spark preprocessing pipeline.
+
+Step 4 — Train the ML model
+
+Start with a simple historical-sales baseline, then train a Spark MLlib regression model. A Random Forest Regressor is a reasonable first candidate.
+
+Features can include previous-day sales, sales from 7 and 28 days ago, rolling averages, price, and calendar information.
+
+Deliverable: saved model and future-demand predictions.
+
+Step 5 — Visualize and make a decision
+
+Display actual versus predicted sales, top-selling products, demand trends, forecasted demand, and products requiring inventory attention.
+
+Deliverable: an interactive dashboard with evidence-based recommendations.
+
+Step 6 — Performance analysis
+
+Evaluate prediction accuracy and compare the model against the baseline. Measure processing time and scalability as well.
+
+Deliverable: a results table, performance charts, and a final conclusion.
+
+## 4. Which ML model should you choose?
+
+I recommend starting with these two approaches.
+
+| Approach                | Purpose                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| Historical baseline     | Predict sales using recent historical sales, such as the previous week's corresponding day |
+| Random Forest Regressor | Learn nonlinear relationships among past sales, prices, and calendar features              |
+
+Evaluate both on the same chronological test period. Do not randomly split time-series records, because future data could leak into training.
+
+Use these metrics:
+
+- MAE: Average absolute prediction error, in sales units.
+- RMSE: Penalizes large prediction errors more heavily.
+- WAPE: Total absolute error relative to total actual sales.
+- Execution time: Time required to preprocess and train.
+- Scalability: How processing time changes with the amount of data or available Spark resources.
+
+Don't assume Random Forest will outperform the baseline. Your conclusion should follow the actual results.
+
+## 5. Full-stack architecture
+
+Data sources
+
+Retail sales · Prices · Calendar
+
+HBase / HDFS
+
+NoSQL storage and distributed files
+
+PySpark
+
+Cleaning · Joins · EDA · Feature engineering
+
+Machine learning
+
+Baseline · Random Forest · Forecast evaluation
+
+Streamlit dashboard
+
+Charts · Forecasts · Inventory recommendations · Performance
+
+A practical implementation detail: Spark MLlib and the dashboard do not need to run continuously at first. Build a working batch pipeline and dashboard before adding live ingestion. If your review specifically requires real-time processing, add a separate streaming component that processes incoming records or a clearly labeled replay of historical records.
+
+## 6. What to show during your review
+
+Aim to demonstrate these seven outputs:
+
+1. A dataset summary: record count, columns, time range, and missing values.
+2. EDA charts: daily sales trends, top products, store comparisons, and price versus sales.
+3. A Spark execution showing joins, transformations, and aggregations.
+4. A trained ML model and an actual-versus-predicted chart.
+5. A model comparison table with MAE, RMSE, and WAPE.
+6. A dashboard showing forecasted demand and inventory-related recommendations.
+7. A conclusion explaining whether the model is useful and what limitations remain.
+
+For a convincing big-data review, also report Spark execution time and, if feasible, compare processing on different data sizes. Avoid claiming distributed speedup unless you actually measure it.
+
+## 7. Your immediate action plan
+
+Don't start by building the entire dashboard. First verify that your existing data is usable.
+
+## Project checklist
+
+0 of 7
+
+Inspect existing HBase tables and schema
+
+Verify row counts, column families, sales columns, and date representation.
+
+Choose the forecasting target
+
+Predict daily unit sales for a product-store pair over the next 7 days.
+
+Set up PySpark
+
+Verify the Spark version and its compatibility with your Java environment.
+
+Build preprocessing and EDA
+
+Create a cleaned Spark DataFrame and produce the first four charts.
+
+Train and evaluate models
+
+Compare a historical baseline with Random Forest on a chronological holdout.
+
+Build the dashboard
+
+Display forecasts, prediction errors, sales trends, and recommendations.
+
+Prepare the review demonstration
+
+Practice the full pipeline and prepare results, conclusions, and limitations.
+
+One thing I need to know before we choose the implementation: Is your faculty expecting you to use the existing HBase retail project, or are you free to select an entirely new dataset and project?
+
+That determines whether we should extend your existing project or choose a different real-time data use case.

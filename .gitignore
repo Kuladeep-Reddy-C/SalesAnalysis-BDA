@@ -1,0 +1,27 @@
+# Virtual Environments
+.venv/
+**/.venv/
+
+# Node Modules
+node_modules/
+**/node_modules/
+
+# Python Cache
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+**/.pytest_cache/
+
+# Large Datasets and Checkpoints (>50MB)
+Review3/results/daily_dataset.csv
+Review3/results/checkpoints/
+Review3/preprocessed_data/
+Review3/processed_data/
+Review3/stream_input/
+Review3/models/
+
+# Build artifacts
+Review2/target/
+Review3/.git_backup/
+.DS_Store

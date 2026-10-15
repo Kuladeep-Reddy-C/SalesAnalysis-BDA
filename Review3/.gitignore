@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+results/
+models/
+.streamlit/
+stream_input/
+node_modules/
+**/node_modules/
+preprocessed_data/
+processed_data
