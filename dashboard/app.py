@@ -24,6 +24,8 @@ spikes_path = RESULTS / 'predictions' / 'demand_spikes.csv'
 spikes = pd.read_csv(spikes_path, parse_dates=['date']) if spikes_path.exists() else pd.DataFrame()
 importance_path = RESULTS / 'metrics' / 'feature_importance.csv'
 importance = pd.read_csv(importance_path) if importance_path.exists() else pd.DataFrame()
+horizon_path = RESULTS / 'metrics' / 'horizon_metrics.csv'
+horizon = pd.read_csv(horizon_path) if horizon_path.exists() else pd.DataFrame()
 stream_metrics_path = RESULTS / 'stream' / 'microbatch_metrics.jsonl'
 stream_metrics = pd.read_json(stream_metrics_path, lines=True) if stream_metrics_path.exists() else pd.DataFrame()
 
@@ -54,6 +56,16 @@ with right:
 if len(importance):
     st.subheader('Random Forest feature importance')
     st.bar_chart(importance.set_index('feature'))
+
+if len(horizon):
+    st.subheader('Rolling-origin error by forecast horizon')
+    selected_horizon_model = st.selectbox('Horizon model', sorted(horizon.model.unique()))
+    horizon_view = horizon[horizon.model == selected_horizon_model].set_index('horizon')[['mae', 'rmse', 'wape']]
+    st.line_chart(horizon_view)
+
+st.subheader('Test residuals')
+residuals = predictions.assign(random_forest_residual=predictions.sales - predictions.rf_prediction)
+st.line_chart(residuals.groupby('date').random_forest_residual.mean())
 
 st.subheader('Forecast evaluation')
 selected_item = st.selectbox('Product', sorted(predictions.item_id.unique()))

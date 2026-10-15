@@ -17,6 +17,14 @@
 
 > **Research question:** Can historical product demand, selling price, calendar events, and seasonality predict the next seven days of demand well enough to support inventory planning?
 
+### Testable hypotheses
+
+- **H1:** A forecast model should beat the seasonal-naive baseline on rolling-origin seven-day WAPE.
+- **H2:** A model should remain competitive with the strongest simple moving-average benchmark, not only with a weak baseline.
+- **H3:** A count-aware spike detector should report measurable precision and recall on injected synthetic spikes.
+
+The current evidence supports H1 for Random Forest at horizons 1-4, supports H2 for the 28-day moving average rather than Random Forest on the single-window benchmark, and reports H3 in `results/metrics/spike_validation.csv`.
+
 This project is built for an academic Big Data Analytics review. It connects data ingestion, quality checks, exploratory analysis, distributed-processing design, machine learning, anomaly detection, performance measurement, a practical decision, and a Streamlit presentation layer.
 
 <p align="center">
@@ -150,6 +158,7 @@ The Streamlit application, **Retail Demand Lab**, contains:
 - **Forecast-dependent decisions:** ranks forecast uplift over the recent seven-day demand signal
 - **Simulated live replay:** historical micro-batches, throughput counts, and an explicit simulated-data warning
 - **Model transparency:** persisted Random Forest feature importance
+- **Evaluation diagnostics:** rolling-origin horizon error and residual views
 - **Backend API:** FastAPI endpoints over persisted forecasts, spikes, metrics, and decisions
 
 <p align="center">
@@ -251,6 +260,8 @@ Review3/
 - [Faculty review guide](docs/REVIEW_GUIDE.md)
 
 ## Honest Scope Notes
+
+The source shape and date coverage match the processed single-store slice of the public M5 Walmart retail forecasting dataset. The repository uses the provided processed files; verify the original dataset terms before redistribution or commercial use.
 
 - The supplied CSV dataset is historical, not a genuine live real-time feed.
 - A replay of historical rows would be **simulated streaming** and must be labelled that way.

@@ -140,3 +140,27 @@ This file records the ordered improvement work requested from the critical evalu
 **What changed:** Added `analytics/benchmark.py` with two repeated runs at 10%, 50%, and 100% input fractions. It records input/output rows, timings, Python version, platform, and CPU metadata in `results/metrics/performance.csv` and `performance_environment.json`.
 
 **Remaining limitation:** This is not yet a Spark-versus-Pandas or multi-node benchmark; the limitation is explicit in the output.
+
+### Item 6: Make the project scale story credible
+
+**Status:** Partial, with measured reference scaling.
+
+**What changed:** Added the three-size repeated benchmark and documented the source as a processed single-store slice matching public M5 structure. The current data remains a development slice, not the full multi-store dataset.
+
+**Measured evidence:** `results/metrics/performance.csv` contains two runs each at 10%, 50%, and 100% input fractions. Full-data scaling to all stores remains unproven because those source files are not present in this workspace.
+
+### Item 12: Upgrade the dashboard
+
+**Status:** Core diagnostics completed; live store refresh remains.
+
+**What changed:** Added simulated replay visibility, feature importance, rolling-origin horizon error charts, residual diagnostics, forecast-uplift decisions, and API documentation.
+
+**Remaining limitation:** The dashboard still reads persisted outputs directly rather than refreshing from HBase/SQLite through the API.
+
+### Item 14: Rewrite claims and tests from measured evidence
+
+**Status:** In progress.
+
+**What changed:** Added explicit hypotheses, measured-output references, Spark engine evidence, stronger baselines, rolling-origin metrics, API/serving tests, and tracker-level blocker statements.
+
+**Remaining work:** Add Spark/Pandas parity fixtures, formal no-leakage tests for rolling origins, and final source/licence verification for the original dataset terms.
