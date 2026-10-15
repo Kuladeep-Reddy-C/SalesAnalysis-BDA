@@ -125,6 +125,18 @@ This replays historical rows as JSON micro-batches through Spark Structured Stre
 
 Then visit **[http://localhost:8501](http://localhost:8501)**. The dashboard reads persisted results and does not retrain during normal page rendering.
 
+The optional API layer can be started separately:
+
+```bash
+.venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+Available endpoints include `/health`, `/metrics`, `/forecast/{item_id}`, `/spikes`, `/decisions`, and `/run-summary`. The API reads persisted analytics outputs and does not retrain models.
+
+Build the local serving database from generated outputs with `.venv/bin/python run_pipeline.py --build-store`. This creates `results/serving.sqlite3` as a runnable serving-store alternative when HBase is unavailable.
+
+Run the repeatable reference benchmark with `.venv/bin/python run_pipeline.py --benchmark`; it measures two runs at 10%, 50%, and 100% input fractions and writes `results/metrics/performance.csv`.
+
 ## Dashboard
 
 The Streamlit application, **Retail Demand Lab**, contains:
@@ -135,8 +147,10 @@ The Streamlit application, **Retail Demand Lab**, contains:
 - **Demand spikes:** flagged product-store-date observations, expected demand, score, and explanation
 - **Model performance:** baseline versus Random Forest MAE, RMSE, and WAPE
 - **Inventory decision support:** demand-based prioritisation without invented inventory quantities or savings
+- **Forecast-dependent decisions:** ranks forecast uplift over the recent seven-day demand signal
 - **Simulated live replay:** historical micro-batches, throughput counts, and an explicit simulated-data warning
 - **Model transparency:** persisted Random Forest feature importance
+- **Backend API:** FastAPI endpoints over persisted forecasts, spikes, metrics, and decisions
 
 <p align="center">
 	<img src="results/charts/model_performance.png" alt="Model performance comparison" width="31%">
@@ -182,6 +196,10 @@ These are workstation measurements for the verified local run. They are not a cl
 | `results/metrics/horizon_metrics.csv` | Rolling-origin error for forecast horizons 1 through 7 |
 | `results/metrics/price_availability.csv` | Missing-price rates by product age |
 | `results/metrics/feature_importance.csv` | Random Forest feature importance |
+| `results/metrics/forecast_uplift_decision.csv` | Forecast-dependent inventory review ranking |
+| `results/metrics/spike_validation.csv` | Injected-spike precision and recall |
+| `results/metrics/performance.csv` | Repeated reference-engine timings at three input sizes |
+| `results/serving.sqlite3` | Local serving-store copy of forecasts, spikes, and metrics |
 | `results/metrics/run_summary.json` | Execution mode, timings, joins, and split dates |
 | `results/predictions/test_predictions.csv` | Historical holdout predictions |
 | `results/predictions/seven_day_forecast.csv` | Recursive future forecast rows |

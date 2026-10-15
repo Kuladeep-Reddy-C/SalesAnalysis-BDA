@@ -6,3 +6,6 @@ scikit-learn>=1.5
 matplotlib>=3.9
 streamlit>=1.38
 pytest>=8.3
+fastapi>=0.115
+uvicorn>=0.30
+httpx2>=0.1

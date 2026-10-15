@@ -30,7 +30,7 @@ def run(config: Config | None = None) -> dict:
     """Run the verified batch path with Spark DataFrames and Spark MLlib."""
     from pyspark.ml import Pipeline
     from pyspark.ml.feature import VectorAssembler
-    from pyspark.ml.regression import RandomForestRegressor
+    from pyspark.ml.regression import GBTRegressor, RandomForestRegressor
     from pyspark.sql import functions as F
     from pyspark.sql.window import Window
 
@@ -81,12 +81,15 @@ def run(config: Config | None = None) -> dict:
         assembler = VectorAssembler(inputCols=FEATURES, outputCol="features")
         estimator = RandomForestRegressor(featuresCol="features", labelCol="sales", predictionCol="rf_prediction", numTrees=24, maxDepth=8, minInstancesPerNode=5, seed=config.random_seed)
         model = Pipeline(stages=[assembler, estimator]).fit(train)
-        predictions = model.transform(test).withColumn("rf_prediction", F.greatest(F.lit(0.0), F.col("rf_prediction"))).withColumnRenamed("lag_7", "baseline_prediction")
-        metrics = [_metric_row(predictions, "historical_baseline", "baseline_prediction"), _metric_row(predictions, "random_forest_spark", "rf_prediction")]
+        predictions = model.transform(test).withColumn("rf_prediction", F.greatest(F.lit(0.0), F.col("rf_prediction"))).withColumn("baseline_prediction", F.col("lag_7"))
+        gbt_estimator = GBTRegressor(featuresCol="features", labelCol="sales", predictionCol="gbt_prediction", maxIter=10, maxDepth=3, maxBins=32, seed=config.random_seed)
+        gbt_model = Pipeline(stages=[assembler, gbt_estimator]).fit(train)
+        predictions = gbt_model.transform(predictions).withColumn("gbt_prediction", F.greatest(F.lit(0.0), F.col("gbt_prediction")))
+        metrics = [_metric_row(predictions, "historical_baseline", "baseline_prediction"), _metric_row(predictions, "random_forest_spark", "rf_prediction"), _metric_row(predictions, "gbt_spark", "gbt_prediction")]
         metrics_path = config.results / "metrics" / "spark_model_metrics.csv"
         import pandas as pd
         pd.DataFrame(metrics).to_csv(metrics_path, index=False)
-        predictions.select("date", "item_id", "store_id", "sales", "baseline_prediction", "rf_prediction").toPandas().to_csv(config.results / "predictions" / "spark_test_predictions.csv", index=False)
+        predictions.select("date", "item_id", "store_id", "sales", "baseline_prediction", "rf_prediction", "gbt_prediction").toPandas().to_csv(config.results / "predictions" / "spark_test_predictions.csv", index=False)
         model_path = config.models / "spark_random_forest"
         model.write().overwrite().save(str(model_path))
         summary = {

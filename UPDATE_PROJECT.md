@@ -57,7 +57,7 @@ This file records the ordered improvement work requested from the critical evalu
 
 ### Item 4: Investigate missing-price semantics
 
-**Status:** Investigation completed; handling comparison remains.
+**Status:** Completed.
 
 **What was there:** Missing price rows were imputed, but the project did not preserve an explicit availability signal or analyze whether unmatched rows clustered near product launch.
 
@@ -65,7 +65,7 @@ This file records the ordered improvement work requested from the critical evalu
 
 **Measured finding:** Unavailable prices are concentrated early in product history: unavailable rates are `62.4%` at age 0-28 days, `58.3%` at 29-90 days, `49.9%` at 91-365 days, and `11.3%` after 366 days. This supports treating missing prices as an availability signal rather than assuming the median price is always observed. The age-bucket evidence is persisted in `results/metrics/price_availability.csv`.
 
-**Remaining work:** Add a measured model comparison with unavailable rows excluded versus retained with an `is_available` feature before changing the production training policy.
+**Comparison result:** Retaining imputed rows produced MAE `1.0631`, RMSE `2.4000`, WAPE `0.8951`; training only on available-price rows produced MAE `1.0645`, RMSE `2.3970`, WAPE `0.8963`. Because exclusion did not improve WAPE and removes 92,169 training rows, the current policy remains retention plus explicit `is_available` reporting. Results are stored in `results/metrics/availability_model_comparison.csv`.
 
 ### Item 5: Add simulated real-time processing
 
@@ -86,3 +86,57 @@ This file records the ordered improvement work requested from the critical evalu
 **What changed:** The dashboard now displays available simulated-stream micro-batch metrics with a visible historical-replay warning and displays persisted Random Forest feature importance. The pipeline writes `results/metrics/feature_importance.csv`.
 
 **Validation:** The code path is covered by syntax checks and the existing test suite; real stream metrics were already generated under `results/stream/`.
+
+### Item 7: Compare and justify models
+
+**Status:** Spark challenger code added; GBT validation blocked by local executor stability.
+
+**What changed:** Added Spark MLlib `GBTRegressor` alongside Spark Random Forest. The Spark metrics output now includes `gbt_spark` using the same features and chronological test rows.
+
+**Validation:** The Spark Random Forest path remains validated. The GBT fit was attempted with bounded settings, but the local Spark executor shut down before producing a new metrics artifact. No GBT performance claim is made. Feature ablation and time-aware tuning remain.
+
+### Item 8: Make the business decision forecast-dependent
+
+**Status:** Core decision logic completed.
+
+**What was there:** Inventory support ranked recent demand, which could be done without a forecast.
+
+**What changed:** Added `analytics/decision_support.py`. The pipeline now ranks product-store pairs by seven-day forecast uplift over the trailing seven-day demand, includes a revenue/value signal using the latest price, and labels rising demand when uplift exceeds 10%.
+
+**Validation:** `results/metrics/forecast_uplift_decision.csv` and the dashboard decision section now depend on forecast output. The 10% threshold is an explicit planning assumption, not a measured financial claim.
+
+### Item 9: Replace sparse-demand spike z-scores
+
+**Status:** Completed.
+
+**What was there:** Spike detection used a Gaussian-style trailing z-score despite sparse count demand.
+
+**What changed:** `analytics/spikes.py` now uses a one-sided Poisson tail probability, a minimum expected-demand floor, and a transparent reason. Synthetic five-times spikes are injected and scored for precision and recall in `results/metrics/spike_validation.csv`.
+
+**Validation:** The real pipeline produced `results/metrics/spike_validation.csv`; all 9 tests passed.
+
+### Item 11: Add an API layer
+
+**Status:** Completed.
+
+**What was there:** Streamlit read persisted CSV files directly, with no backend API boundary.
+
+**What changed:** Added `api/main.py` with FastAPI endpoints for health, metrics, forecasts, spikes, decisions, and run metadata. Added FastAPI and Uvicorn dependencies.
+
+**Validation:** FastAPI TestClient returned HTTP 200 for `/health`, `/metrics`, and `/decisions`, with 8 metric rows and 100 decision records.
+
+### Item 10: Use a real serving backend
+
+**Status:** Runnable SQLite serving alternative completed; HBase serving remains optional.
+
+**What changed:** Added `serving/store.py`, which loads forecasts, spikes, and metrics into `results/serving.sqlite3`. This gives the API a local serving-store alternative without modifying the existing HBase tables.
+
+**Validation:** `run_pipeline.py --build-store` created `results/serving.sqlite3` with forecast, spike, and metrics tables.
+
+### Item 13: Add repeatable performance benchmarking
+
+**Status:** Reference-engine benchmark completed; Spark-versus-Pandas and cluster scaling remain future measurements.
+
+**What changed:** Added `analytics/benchmark.py` with two repeated runs at 10%, 50%, and 100% input fractions. It records input/output rows, timings, Python version, platform, and CPU metadata in `results/metrics/performance.csv` and `performance_environment.json`.
+
+**Remaining limitation:** This is not yet a Spark-versus-Pandas or multi-node benchmark; the limitation is explicit in the output.

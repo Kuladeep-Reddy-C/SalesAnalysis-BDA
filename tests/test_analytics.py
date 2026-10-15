@@ -2,7 +2,7 @@ import pandas as pd
 from analytics.baselines import add_baseline_predictions
 from analytics.metrics import mase, regression_metrics
 from analytics.preprocess import add_features, build_daily_dataset, price_availability_report
-from analytics.spikes import detect_spikes
+from analytics.spikes import detect_spikes, validate_injected_spikes
 
 
 def sample_daily(days=40):
@@ -56,6 +56,11 @@ def test_spike_detection_requires_history():
     frame.loc[39, 'sales'] = 100
     spikes = detect_spikes(frame)
     assert bool(spikes.iloc[39].is_spike)
+
+
+def test_injected_spike_validation_has_precision_and_recall():
+    result = validate_injected_spikes(sample_daily(40), multiplier=5)
+    assert {'precision', 'recall'} <= set(result.columns)
 
 
 def test_temporal_split_is_ordered():

@@ -9,10 +9,11 @@ from sklearn.ensemble import RandomForestRegressor
 
 from config import Config
 from analytics.baselines import add_baseline_predictions, add_croston_prediction
+from analytics.decision_support import build_forecast_uplift_decision
 from analytics.metrics import mase, regression_metrics, revenue_weighted_absolute_error
 from analytics.preprocess import add_features, build_daily_dataset, price_availability_report, quality_report, read_inputs
 from analytics.spark_support import spark_available
-from analytics.spikes import detect_spikes
+from analytics.spikes import detect_spikes, validate_injected_spikes
 
 FEATURES = ["lag_1", "lag_7", "lag_28", "rolling_7", "rolling_28", "sell_price", "day_of_week", "month_num", "is_event"]
 
@@ -76,8 +77,10 @@ def run(config: Config | None = None) -> dict:
         pickle.dump({"model": model, "features": FEATURES}, handle)
     spikes = detect_spikes(daily)
     spikes[spikes["is_spike"]].to_csv(config.results / "predictions" / "demand_spikes.csv", index=False)
+    validate_injected_spikes(daily).to_csv(config.results / "metrics" / "spike_validation.csv", index=False)
     forecast = recursive_forecast(model, daily, calendar, config.test_days if config.test_days < 7 else 7)
     forecast.to_csv(config.results / "predictions" / "seven_day_forecast.csv", index=False)
+    build_forecast_uplift_decision(daily, forecast).to_csv(config.results / "metrics" / "forecast_uplift_decision.csv", index=False)
     summary = {"execution_mode": "pyspark_available_but_pandas_pipeline_used" if spark_available() else "pandas_fallback_spark_unavailable", "sales_rows": len(sales), "price_rows": len(prices), "calendar_rows": len(calendar), "daily_rows": len(daily), "feature_rows": len(usable), "joins": joins, "training_seconds": training_seconds, "prediction_seconds": prediction_seconds, "preprocessing_seconds": time.perf_counter() - started - training_seconds - prediction_seconds, "train_date_start": str(train["date"].min().date()), "train_date_end": str(train["date"].max().date()), "validation_date_start": str(validation["date"].min().date()), "validation_date_end": str(validation["date"].max().date()), "test_date_start": str(test["date"].min().date()), "test_date_end": str(test["date"].max().date())}
     (config.results / "metrics" / "run_summary.json").write_text(json.dumps(summary, indent=2))
     daily.to_csv(config.results / "daily_dataset.csv", index=False)
