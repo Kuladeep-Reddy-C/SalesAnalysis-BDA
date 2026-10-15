@@ -22,7 +22,15 @@ if __name__ == '__main__':
     parser.add_argument('--decision-backtest', action='store_true')
     parser.add_argument('--load-hbase', action='store_true')
     parser.add_argument('--model-evidence', action='store_true')
+    parser.add_argument('--serve', action='store_true', help='Launch FastAPI and React UI dashboard on http://localhost:8000')
     args = parser.parse_args()
+
+    if args.serve:
+        import uvicorn
+        print("Starting Retail Demand Lab UI at http://localhost:8000 ...")
+        uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=False)
+        exit(0)
+
     summary = run_spark() if args.engine == 'spark' else run_pandas()
     print(json.dumps(summary, indent=2))
     if args.engine == 'pandas':

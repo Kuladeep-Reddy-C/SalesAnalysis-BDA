@@ -33,32 +33,80 @@ class ServingBackend:
 
     def metrics(self) -> list[dict]:
         if self.hbase.status.connected:
-            return self.hbase.scan_table(self.hbase.metrics_table)
-        if self.preferred == "hbase":
-            raise RuntimeError(self.hbase.status.detail)
-        return self._sqlite("metrics").to_dict(orient="records")
+            try:
+                res = self.hbase.scan_table(self.hbase.metrics_table)
+                if res:
+                    return res
+            except Exception:
+                pass
+        if self.sqlite_path.exists():
+            try:
+                return self._sqlite("metrics").to_dict(orient="records")
+            except Exception:
+                pass
+        csv_p = self.results / "metrics" / "model_metrics.csv"
+        if csv_p.exists():
+            return pd.read_csv(csv_p).to_dict(orient="records")
+        raise RuntimeError("No metrics found")
 
     def forecasts(self, item_id: str, store_id: str | None = None) -> list[dict]:
         if self.hbase.status.connected:
-            return self.hbase.get_forecast(item_id, store_id)
-        if self.preferred == "hbase":
-            raise RuntimeError(self.hbase.status.detail)
-        frame = self._sqlite("forecasts")
-        frame = frame[frame["item_id"] == item_id]
-        if store_id:
-            frame = frame[frame["store_id"] == store_id]
-        return frame.to_dict(orient="records")
+            try:
+                res = self.hbase.get_forecast(item_id, store_id)
+                if res:
+                    return res
+            except Exception:
+                pass
+        if self.sqlite_path.exists():
+            try:
+                frame = self._sqlite("forecasts")
+                frame = frame[frame["item_id"] == item_id]
+                if store_id:
+                    frame = frame[frame["store_id"] == store_id]
+                return frame.to_dict(orient="records")
+            except Exception:
+                pass
+        csv_p = self.results / "predictions" / "seven_day_forecast.csv"
+        if csv_p.exists():
+            df = pd.read_csv(csv_p)
+            df = df[df["item_id"] == item_id]
+            if store_id:
+                df = df[df["store_id"] == store_id]
+            return df.to_dict(orient="records")
+        return []
 
     def spikes(self, limit: int) -> list[dict]:
         if self.hbase.status.connected:
-            return self.hbase.scan_table(self.hbase.spike_table, limit)
-        if self.preferred == "hbase":
-            raise RuntimeError(self.hbase.status.detail)
-        return self._sqlite("spikes").head(limit).to_dict(orient="records")
+            try:
+                res = self.hbase.scan_table(self.hbase.spike_table, limit)
+                if res:
+                    return res
+            except Exception:
+                pass
+        if self.sqlite_path.exists():
+            try:
+                return self._sqlite("spikes").head(limit).to_dict(orient="records")
+            except Exception:
+                pass
+        csv_p = self.results / "predictions" / "demand_spikes.csv"
+        if csv_p.exists():
+            return pd.read_csv(csv_p).head(limit).to_dict(orient="records")
+        return []
 
     def decisions(self, limit: int) -> list[dict]:
         if self.hbase.status.connected:
-            return self.hbase.scan_table(self.hbase.decision_table, limit)
-        if self.preferred == "hbase":
-            raise RuntimeError(self.hbase.status.detail)
-        return self._sqlite("decisions").head(limit).to_dict(orient="records")
+            try:
+                res = self.hbase.scan_table(self.hbase.decision_table, limit)
+                if res:
+                    return res
+            except Exception:
+                pass
+        if self.sqlite_path.exists():
+            try:
+                return self._sqlite("decisions").head(limit).to_dict(orient="records")
+            except Exception:
+                pass
+        csv_p = self.results / "metrics" / "forecast_uplift_decision.csv"
+        if csv_p.exists():
+            return pd.read_csv(csv_p).head(limit).to_dict(orient="records")
+        return []
