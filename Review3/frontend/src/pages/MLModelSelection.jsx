@@ -24,7 +24,6 @@ import {
 } from 'recharts';
 import { 
   MOCK_MODEL_METRICS, 
-  MOCK_SPARK_METRICS, 
   MOCK_FEATURE_IMPORTANCE 
 } from '../data/mockData';
 
@@ -43,7 +42,7 @@ export default function MLModelSelection({ metricsData }) {
       <div className="border-b border-slate-200 pb-5">
         <div className="flex items-center space-x-3">
           <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 7 of 8
+            Step 5 of 6
           </span>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Select and Implement Suitable ML Model for Decision

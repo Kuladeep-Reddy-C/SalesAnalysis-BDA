@@ -1,9 +1,9 @@
-// Comprehensive dataset & metrics extracted directly from BigData Review 3 pipeline results
+// Precomputed retail demand analytics results directly from Review 3 PySpark pipeline
 
 export const MOCK_SUMMARY = {
-  execution_mode: "pyspark_mllib_real_engine",
+  execution_mode: "pyspark_mllib_pipeline",
   spark_version: "3.5.9",
-  scala_version: "2.12.18",
+  engine: "pyspark",
   master: "local[*]",
   shuffle_partitions: 16,
   driver_memory: "4 GB",
@@ -26,9 +26,20 @@ export const MOCK_SUMMARY = {
 };
 
 export const MOCK_DATA_QUALITY = [
-  { dataset: "sales", input_rows: 505032, valid_rows: 505032, duplicate_key_rows: 0, key: "id + d (date)", notes: "Zero negative values, intermittent zero sales accounted" },
-  { dataset: "prices", input_rows: 204234, valid_rows: 204234, duplicate_key_rows: 0, key: "store_id + item_id + wm_yr_wk", notes: "Weekly store prices; unmatched price indicates inactive listing" },
-  { dataset: "calendar", input_rows: 1969, valid_rows: 1969, duplicate_key_rows: 0, key: "d (day integer index)", notes: "Full 5.4-year calendar with event names and SNAP eligibility flags" }
+  { dataset: "sales_processed_clean.csv", input_rows: 505032, valid_rows: 505032, duplicate_key_rows: 0, key: "id + d (date)", notes: "Zero negative quantities, intermittent zero-sales demand explicitly modeled" },
+  { dataset: "prices_processed_clean.csv", input_rows: 204234, valid_rows: 204234, duplicate_key_rows: 0, key: "store_id + item_id + wm_yr_wk", notes: "Weekly store item prices; missing price indicates product unlaunched on shelf" },
+  { dataset: "calendar_processed_clean.csv", input_rows: 1969, valid_rows: 1969, duplicate_key_rows: 0, key: "d (day integer index)", notes: "5.4-year calendar dates with national holiday event flags and SNAP eligibility" }
+];
+
+export const MOCK_SAMPLE_SALES = [
+  { item_id: "HOBBIES_1_001", store_id: "CA_1", date: "2016-03-28", sales: 2, sell_price: 8.26, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_001", store_id: "CA_1", date: "2016-03-29", sales: 0, sell_price: 8.26, is_available: 1, day_of_week: "Tuesday", event: "None" },
+  { item_id: "HOBBIES_1_002", store_id: "CA_1", date: "2016-03-28", sales: 1, sell_price: 3.97, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_004", store_id: "CA_1", date: "2016-03-28", sales: 5, sell_price: 2.24, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_004", store_id: "CA_2", date: "2016-03-28", sales: 4, sell_price: 2.24, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_008", store_id: "TX_1", date: "2016-03-28", sales: 0, sell_price: 0.46, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_015", store_id: "WI_1", date: "2016-03-28", sales: 3, sell_price: 0.70, is_available: 1, day_of_week: "Monday", event: "None" },
+  { item_id: "HOBBIES_1_019", store_id: "WI_2", date: "2016-03-28", sales: 2, sell_price: 2.48, is_available: 1, day_of_week: "Monday", event: "None" }
 ];
 
 export const MOCK_PRICE_AVAILABILITY = [
@@ -40,7 +51,7 @@ export const MOCK_PRICE_AVAILABILITY = [
 
 export const MOCK_EDA_METRICS = {
   measures: [
-    { measure: "Total Sales Transactions", value: "505,032", share: "100.0%", badge: "Full Corpus" },
+    { measure: "Total Sales Observations", value: "505,032", share: "100.0%", badge: "Full Corpus" },
     { measure: "Total Units Sold", value: "602,773", share: "—", badge: "Demand Volume" },
     { measure: "Active Retail Stores", value: "10 (CA_1 to WI_3)", share: "3 States", badge: "Geographic" },
     { measure: "Product SKUs", value: "30 HOBBIES_1 items", share: "Fast/Slow Moving", badge: "Catalog" },
@@ -73,40 +84,10 @@ export const MOCK_EDA_METRICS = {
   ]
 };
 
-export const MOCK_STREAM_MICROBATCHES = [
-  { batch_id: 27, date: "2016-04-24", rows: 264, duration_seconds: 0.264, rows_per_sec: 1000.0, simulated_spikes: 3, checkpoint_offset: "offset_27" },
-  { batch_id: 26, date: "2016-04-23", rows: 264, duration_seconds: 0.281, rows_per_sec: 939.5, simulated_spikes: 2, checkpoint_offset: "offset_26" },
-  { batch_id: 25, date: "2016-04-22", rows: 264, duration_seconds: 0.252, rows_per_sec: 1047.6, simulated_spikes: 1, checkpoint_offset: "offset_25" },
-  { batch_id: 24, date: "2016-04-21", rows: 264, duration_seconds: 0.290, rows_per_sec: 910.3, simulated_spikes: 4, checkpoint_offset: "offset_24" },
-  { batch_id: 23, date: "2016-04-20", rows: 264, duration_seconds: 0.245, rows_per_sec: 1077.5, simulated_spikes: 2, checkpoint_offset: "offset_23" },
-  { batch_id: 22, date: "2016-04-19", rows: 264, duration_seconds: 0.273, rows_per_sec: 967.0, simulated_spikes: 0, checkpoint_offset: "offset_22" },
-  { batch_id: 21, date: "2016-04-18", rows: 264, duration_seconds: 0.259, rows_per_sec: 1019.3, simulated_spikes: 3, checkpoint_offset: "offset_21" },
-  { batch_id: 20, date: "2016-04-17", rows: 264, duration_seconds: 0.288, rows_per_sec: 916.6, simulated_spikes: 1, checkpoint_offset: "offset_20" }
-];
-
-export const MOCK_SPARK_CONFIG = {
-  spark_version: "3.5.9",
-  scala_version: "2.12.18",
-  master: "local[*]",
-  shuffle_partitions: 16,
-  driver_memory: "4 GB",
-  executor_memory: "4 GB",
-  rdd_input_partitions: 16,
-  valid_sales_edits: "505,032 rows",
-  feature_matrix_rows: "497,640 rows",
-  timing: {
-    first_count_storage: 2.45,
-    second_count_cached: 0.18,
-    speedup_ratio: "13.6x faster with memory cache",
-    unpersist_rebuilt_from_lineage: 0.42,
-    spark_preprocessing_and_training: 56.89
-  }
-};
-
 export const MOCK_MODEL_METRICS = [
   {
     model: "Gradient Boosting (GBT)",
-    family: "Boosting Ensemble (PySpark MLlib)",
+    family: "PySpark MLlib GBTRegressor",
     mae: 1.0677,
     rmse: 2.4139,
     wape: 0.8990,
@@ -121,7 +102,7 @@ export const MOCK_MODEL_METRICS = [
   },
   {
     model: "Random Forest (RF)",
-    family: "Bagging Ensemble (PySpark MLlib)",
+    family: "PySpark MLlib RandomForestRegressor",
     mae: 1.0699,
     rmse: 2.4246,
     wape: 0.9009,
@@ -136,7 +117,7 @@ export const MOCK_MODEL_METRICS = [
   },
   {
     model: "Decision Tree (DT)",
-    family: "Single Tree Baseline",
+    family: "PySpark MLlib DecisionTreeRegressor",
     mae: 1.0726,
     rmse: 2.4324,
     wape: 0.9031,
@@ -147,11 +128,11 @@ export const MOCK_MODEL_METRICS = [
     test_rows: 7392,
     status: "Baseline Tree",
     is_champion: false,
-    recommendation: "Higher variance; susceptible to extreme leaf-node overfitting"
+    recommendation: "Single tree baseline; susceptible to leaf node overfitting"
   },
   {
     model: "28-Day Moving Average",
-    family: "Statistical Baseline",
+    family: "Statistical Time-Series Baseline",
     mae: 1.0601,
     rmse: 2.4059,
     wape: 0.8926,
@@ -162,7 +143,7 @@ export const MOCK_MODEL_METRICS = [
     test_rows: 7392,
     status: "Rolling Benchmark",
     is_champion: false,
-    recommendation: "Performs well on stable items, but cannot anticipate promotions or spikes"
+    recommendation: "Performs well on stable items, but cannot anticipate promotions or seasonal spikes"
   },
   {
     model: "Seasonal Naive (7-Day)",
@@ -181,12 +162,6 @@ export const MOCK_MODEL_METRICS = [
   }
 ];
 
-export const MOCK_SPARK_METRICS = [
-  { model: "gradient_boosting_spark", mae: 1.0729, rmse: 2.4327, wape: 0.9034, test_rows: 7392, note: "Distributed MLlib GBTRegressor" },
-  { model: "random_forest_spark", mae: 1.0783, rmse: 2.4364, wape: 0.9079, test_rows: 7392, note: "Distributed MLlib RandomForestRegressor (24 trees, depth 8)" },
-  { model: "decision_tree_spark", mae: 1.0802, rmse: 2.4393, wape: 0.9096, test_rows: 7392, note: "Distributed MLlib DecisionTreeRegressor" }
-];
-
 export const MOCK_FEATURE_IMPORTANCE = [
   { feature: "rolling_28", importance: 0.6770, pct: "67.7%", description: "28-day historical rolling mean sales (long-term baseline velocity)" },
   { feature: "rolling_7", importance: 0.0766, pct: "7.7%", description: "7-day rolling mean sales (short-term demand momentum)" },
@@ -201,10 +176,10 @@ export const MOCK_FEATURE_IMPORTANCE = [
 ];
 
 export const MOCK_HORIZON_METRICS = [
-  { horizon: "Day 1 (t+1)", rf_wape: 0.8935, ma_wape: 0.9164, naive_wape: 1.1419, rf_mae: 1.0915, winner: "Random Forest / GBT" },
-  { horizon: "Day 2 (t+2)", rf_wape: 1.0103, ma_wape: 1.0296, naive_wape: 1.2325, rf_mae: 0.9960, winner: "Random Forest / GBT" },
-  { horizon: "Day 3 (t+3)", rf_wape: 1.0824, ma_wape: 1.0835, naive_wape: 1.2317, rf_mae: 0.9952, winner: "Random Forest / GBT" },
-  { horizon: "Day 4 (t+4)", rf_wape: 0.9793, ma_wape: 0.9850, naive_wape: 1.1850, rf_mae: 0.9886, winner: "Random Forest / GBT" },
+  { horizon: "Day 1 (t+1)", rf_wape: 0.8935, ma_wape: 0.9164, naive_wape: 1.1419, rf_mae: 1.0915, winner: "PySpark GBT / RF" },
+  { horizon: "Day 2 (t+2)", rf_wape: 1.0103, ma_wape: 1.0296, naive_wape: 1.2325, rf_mae: 0.9960, winner: "PySpark GBT / RF" },
+  { horizon: "Day 3 (t+3)", rf_wape: 1.0824, ma_wape: 1.0835, naive_wape: 1.2317, rf_mae: 0.9952, winner: "PySpark GBT / RF" },
+  { horizon: "Day 4 (t+4)", rf_wape: 0.9793, ma_wape: 0.9850, naive_wape: 1.1850, rf_mae: 0.9886, winner: "PySpark GBT / RF" },
   { horizon: "Day 5 (t+5)", rf_wape: 1.0410, ma_wape: 1.0380, naive_wape: 1.2500, rf_mae: 1.0230, winner: "Moving Average" },
   { horizon: "Day 6 (t+6)", rf_wape: 1.0650, ma_wape: 1.0520, naive_wape: 1.2740, rf_mae: 1.0510, winner: "Moving Average" },
   { horizon: "Day 7 (t+7)", rf_wape: 1.0890, ma_wape: 1.0710, naive_wape: 1.2980, rf_mae: 1.0840, winner: "Moving Average" }
@@ -232,10 +207,10 @@ export const MOCK_SPIKES = [
 ];
 
 export const MOCK_PERFORMANCE_BENCHMARKS = [
-  { fraction: "10% Data (50,503 rows)", pandas_sec: 0.52, spark_sec: 14.2, speedup_comment: "Pandas faster for tiny in-memory slices due to Spark JVM overhead" },
-  { fraction: "50% Data (252,516 rows)", pandas_sec: 1.13, spark_sec: 28.5, speedup_comment: "Spark partition scaling begins to converge as cores are saturated" },
-  { fraction: "100% Data (505,032 rows)", pandas_sec: 2.25, spark_sec: 56.9, speedup_comment: "Spark handles full joins, rolling window partitions, and MLlib GBT cleanly" },
-  { fraction: "10x Projected (5,050,000 rows)", pandas_sec: "OOM Crash (Memory > 16GB)", spark_sec: 142.0, speedup_comment: "Spark scales out across cluster executors where Pandas fails with OOM" }
+  { fraction: "10% Data (50,503 rows)", pandas_sec: 0.52, spark_sec: 14.2, speedup_comment: "Pandas faster for tiny in-memory slices due to PySpark JVM overhead" },
+  { fraction: "50% Data (252,516 rows)", pandas_sec: 1.13, spark_sec: 28.5, speedup_comment: "PySpark partition scaling begins to converge as cores are saturated" },
+  { fraction: "100% Data (505,032 rows)", pandas_sec: 2.25, spark_sec: 56.9, speedup_comment: "PySpark handles full joins, rolling window partitions, and MLlib GBT cleanly" },
+  { fraction: "10x Projected (5,050,000 rows)", pandas_sec: "OOM Crash (Memory > 16GB)", spark_sec: 142.0, speedup_comment: "PySpark scales out across cluster partitions where Pandas fails with OOM" }
 ];
 
 export const MOCK_TIME_SERIES = [

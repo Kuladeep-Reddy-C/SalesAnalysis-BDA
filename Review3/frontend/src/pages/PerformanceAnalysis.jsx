@@ -29,11 +29,11 @@ import {
 
 export default function PerformanceAnalysis() {
   const scalingChartData = [
-    { fraction: "10% (50k)", Pandas: 0.52, Spark: 14.2 },
-    { fraction: "50% (250k)", Pandas: 1.13, Spark: 28.5 },
-    { fraction: "100% (505k)", Pandas: 2.25, Spark: 56.9 },
-    { fraction: "500% (2.5M)", Pandas: 18.4, Spark: 82.0 },
-    { fraction: "1000% (5M)", Pandas: null, Spark: 142.0 } // Pandas OOM
+    { fraction: "10% (50k)", Pandas: 0.52, PySpark: 14.2 },
+    { fraction: "50% (250k)", Pandas: 1.13, PySpark: 28.5 },
+    { fraction: "100% (505k)", Pandas: 2.25, PySpark: 56.9 },
+    { fraction: "500% (2.5M)", Pandas: 18.4, PySpark: 82.0 },
+    { fraction: "1000% (5M)", Pandas: null, PySpark: 142.0 } // Pandas OOM
   ];
 
   return (
@@ -42,15 +42,15 @@ export default function PerformanceAnalysis() {
       <div className="border-b border-slate-200 pb-5">
         <div className="flex items-center space-x-3">
           <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 8 of 8
+            Step 6 of 6
           </span>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Do the Performance Analysis & Scalability Benchmarking
+            Performance Analysis & Scalability Benchmarking
           </h1>
         </div>
         <p className="mt-2 text-sm text-slate-600 max-w-4xl leading-relaxed">
-          Empirical evaluation of <strong>distributed scalability, memory utilization, and query latencies</strong>. 
-          Demonstrates how Apache Spark overcomes single-machine memory constraints (OOM) at scale and profiles 
+          Empirical evaluation of <strong>PySpark distributed scalability, memory partitioning, and query latencies</strong>. 
+          Demonstrates how PySpark overcomes single-machine memory constraints (OOM) at scale and profiles 
           sub-4ms serving latencies over the HBase/SQLite store.
         </p>
       </div>
@@ -63,9 +63,9 @@ export default function PerformanceAnalysis() {
           <p className="mt-1 text-xs text-slate-500">Row key get / point lookup</p>
         </div>
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase">Streaming Latency</span>
-          <p className="mt-2 text-2xl font-extrabold text-brand-600">268 ms</p>
-          <p className="mt-1 text-xs text-slate-500">Per micro-batch execution</p>
+          <span className="text-xs font-semibold text-slate-500 uppercase">PySpark Training Time</span>
+          <p className="mt-2 text-2xl font-extrabold text-brand-600">56.9 s</p>
+          <p className="mt-1 text-xs text-slate-500">Across 482,856 rows</p>
         </div>
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-500 uppercase">Cache Speedup Ratio</span>
@@ -75,7 +75,7 @@ export default function PerformanceAnalysis() {
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-500 uppercase">Shuffle Partitions</span>
           <p className="mt-2 text-2xl font-extrabold text-slate-900">16</p>
-          <p className="mt-1 text-xs text-slate-500">Even hash distribution</p>
+          <p className="mt-1 text-xs text-slate-500">Hash-distributed partitions</p>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export default function PerformanceAnalysis() {
             </p>
           </div>
           <span className="px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-700 rounded-md">
-            Linux x86_64 · Java 17
+            Linux x86_64 · PySpark 3.5.9
           </span>
         </div>
         <div className="overflow-x-auto">
@@ -130,7 +130,7 @@ export default function PerformanceAnalysis() {
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-slate-900">
-              Execution Time Scaling (Single Machine vs Cluster Partitioning)
+              Execution Time Scaling (Single Machine vs PySpark Partitioning)
             </h3>
             <p className="text-xs text-slate-500">Notice Pandas OOM threshold failure at 5M records</p>
           </div>
@@ -144,7 +144,7 @@ export default function PerformanceAnalysis() {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }}
                 />
                 <Legend wrapperStyle={{fontSize: '11px'}} />
-                <Line type="monotone" dataKey="Spark" name="PySpark Cluster Engine" stroke="#ea580c" strokeWidth={2.5} dot={{r: 4}} />
+                <Line type="monotone" dataKey="PySpark" name="PySpark Cluster Engine" stroke="#ea580c" strokeWidth={2.5} dot={{r: 4}} />
                 <Line type="monotone" dataKey="Pandas" name="Single-Node In-Memory" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" dot={{r: 3}} />
               </LineChart>
             </ResponsiveContainer>
@@ -155,9 +155,9 @@ export default function PerformanceAnalysis() {
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-slate-900">
-              Hardware Environment & JVM Specifications
+              Hardware Environment & PySpark Specifications
             </h3>
-            <p className="text-xs text-slate-500">Cluster runtime configuration deployed for Review 3</p>
+            <p className="text-xs text-slate-500">Runtime environment deployed for Review 3</p>
           </div>
           <table className="w-full text-left text-xs">
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -166,16 +166,16 @@ export default function PerformanceAnalysis() {
                 <td className="py-2.5 font-mono text-slate-900">Linux 6.8.0-45-generic (Ubuntu x86_64)</td>
               </tr>
               <tr>
-                <td className="py-2.5 text-slate-500 font-semibold">Java Virtual Machine</td>
+                <td className="py-2.5 text-slate-500 font-semibold">Java Runtime</td>
                 <td className="py-2.5 font-mono text-slate-900">OpenJDK 17.0.12 (64-Bit Server VM)</td>
               </tr>
               <tr>
-                <td className="py-2.5 text-slate-500 font-semibold">Apache Spark Version</td>
-                <td className="py-2.5 font-mono text-brand-700 font-bold">Spark 3.5.9 (Scala 2.12.18)</td>
+                <td className="py-2.5 text-slate-500 font-semibold">PySpark Engine</td>
+                <td className="py-2.5 font-mono text-brand-700 font-bold">PySpark 3.5.9 (Python 3.12 / 3.14)</td>
               </tr>
               <tr>
                 <td className="py-2.5 text-slate-500 font-semibold">Driver & Executor Allocation</td>
-                <td className="py-2.5 font-mono text-slate-900">4 GB Driver Heap / 4 GB Executor</td>
+                <td className="py-2.5 font-mono text-slate-900">4 GB Driver Memory</td>
               </tr>
               <tr>
                 <td className="py-2.5 text-slate-500 font-semibold">Distributed Serving Store</td>
@@ -197,7 +197,7 @@ export default function PerformanceAnalysis() {
           <span>Big Data Analytics Review 3: Concluding Synthesis</span>
         </h3>
         <p className="mt-2 text-xs text-slate-300 leading-relaxed max-w-4xl">
-          By combining distributed <strong>Apache Spark RDD preprocessing</strong> with <strong>PySpark MLlib gradient boosting</strong> 
+          By combining <strong>PySpark DataFrame feature engineering</strong> with <strong>PySpark MLlib gradient boosting</strong> 
           and <strong>HBase serving</strong>, the project successfully fulfills all Big Data Review 3 objectives. 
           The architecture processes over 500,000 real-world daily transactions, handles severe intermittent demand sparsity 
           without data leakage, and outputs verifiable, automated inventory replenishment decisions with sub-4ms query latencies.

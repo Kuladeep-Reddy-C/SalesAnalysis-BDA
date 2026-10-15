@@ -2,8 +2,6 @@ import React from 'react';
 import { 
   Database, 
   Layers, 
-  HelpCircle, 
-  Cpu, 
   BarChart3, 
   CheckCircle2, 
   Binary, 
@@ -13,14 +11,12 @@ import {
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
-  { id: 'realtime-datasets', num: 1, label: 'Real-time data sets', shortLabel: '1. Datasets', icon: Database },
+  { id: 'datasets', num: 1, label: 'Datasets', shortLabel: '1. Datasets', icon: Database },
   { id: 'preprocessing-eda', num: 2, label: 'Preprocessing and EDA', shortLabel: '2. Preprocessing & EDA', icon: Layers },
-  { id: 'frame-question', num: 3, label: 'Frame analysis question (15 min)', shortLabel: '3. Frame Question', icon: HelpCircle },
-  { id: 'spark-processing', num: 4, label: 'Apply either Spark Scala or PySpark', shortLabel: '4. Spark / PySpark', icon: Cpu },
-  { id: 'results-visualisation', num: 5, label: 'Display the results with possible visualisation', shortLabel: '5. Visualisations', icon: BarChart3 },
-  { id: 'conclude-decision', num: 6, label: 'Conclude the analysis decision', shortLabel: '6. Decision Support', icon: CheckCircle2 },
-  { id: 'ml-model-selection', num: 7, label: 'Select and implement suitable ML model', shortLabel: '7. ML Models', icon: Binary },
-  { id: 'performance-analysis', num: 8, label: 'Do the performance analysis', shortLabel: '8. Performance', icon: Zap },
+  { id: 'results-visualisation', num: 3, label: 'Display Results & Visualisation', shortLabel: '3. Visualisations', icon: BarChart3 },
+  { id: 'conclude-decision', num: 4, label: 'Conclude Analysis Decision', shortLabel: '4. Decision Support', icon: CheckCircle2 },
+  { id: 'ml-model-selection', num: 5, label: 'Select and Implement ML Model', shortLabel: '5. ML Models', icon: Binary },
+  { id: 'performance-analysis', num: 6, label: 'Performance Analysis', shortLabel: '6. Performance', icon: Zap },
 ];
 
 export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefresh, isRefreshing }) {
@@ -44,7 +40,7 @@ export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefr
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                Enterprise Big Data Analytics · Apache Spark 3.5.9 · PySpark MLlib · HBase Serving
+                Retail Demand Forecasting & Inventory Decision Support · PySpark MLlib
               </p>
             </div>
           </div>
@@ -59,8 +55,8 @@ export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefr
               <Server className="w-3.5 h-3.5 text-slate-400" />
               <span>
                 {isLiveConnected 
-                  ? 'HBase Thrift Live (127.0.0.1:9090) · Spark 3.5.9' 
-                  : 'Serving Store: SQLite Synchronized · Spark Active'}
+                  ? 'PySpark 3.5.9 · HBase Thrift Live (127.0.0.1:9090)' 
+                  : 'PySpark 3.5.9 · Serving Store: SQLite Synchronized'}
               </span>
             </div>
 
@@ -68,14 +64,14 @@ export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefr
               onClick={onRefresh}
               disabled={isRefreshing}
               title="Refresh API Data"
-              className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-brand-600' : ''}`} />
             </button>
           </div>
         </div>
 
-        {/* Navigation Tabs - The 8 items */}
+        {/* Navigation Tabs - The 6 Clean Items */}
         <div className="flex space-x-1 overflow-x-auto py-2 no-scrollbar">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -84,7 +80,7 @@ export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefr
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-brand-50 text-brand-700 border-b-2 border-brand-600 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'

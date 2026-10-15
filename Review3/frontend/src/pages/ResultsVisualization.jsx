@@ -68,7 +68,7 @@ export default function ResultsVisualization() {
       <div className="border-b border-slate-200 pb-5">
         <div className="flex items-center space-x-3">
           <span className="px-3 py-1 text-xs font-bold bg-brand-100 text-brand-800 rounded-md">
-            Step 5 of 8
+            Step 3 of 6
           </span>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Display Results with Interactive & Visual Analytics

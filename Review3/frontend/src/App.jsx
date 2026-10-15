@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import RealTimeDatasets from './pages/RealTimeDatasets';
+import Datasets from './pages/Datasets';
 import PreprocessingEDA from './pages/PreprocessingEDA';
-import FrameAnalysisQuestion from './pages/FrameAnalysisQuestion';
-import SparkProcessing from './pages/SparkProcessing';
 import ResultsVisualization from './pages/ResultsVisualization';
 import ConcludeDecision from './pages/ConcludeDecision';
 import MLModelSelection from './pages/MLModelSelection';
@@ -13,32 +11,28 @@ import {
   MOCK_SUMMARY, 
   MOCK_MODEL_METRICS, 
   MOCK_DECISIONS, 
-  MOCK_SPIKES, 
-  MOCK_STREAM_MICROBATCHES 
+  MOCK_SPIKES 
 } from './data/mockData';
 
 const HASH_MAP = {
-  '#realtime': 'realtime-datasets',
-  '#datasets': 'realtime-datasets',
+  '#datasets': 'datasets',
+  '#dataset': 'datasets',
+  '#realtime': 'datasets',
   '#eda': 'preprocessing-eda',
   '#preprocessing': 'preprocessing-eda',
-  '#question': 'frame-question',
-  '#spark': 'spark-processing',
   '#results': 'results-visualisation',
   '#visualisation': 'results-visualisation',
+  '#visualizations': 'results-visualisation',
   '#decision': 'conclude-decision',
   '#decisions': 'conclude-decision',
-  '#suspects': 'conclude-decision',
   '#model': 'ml-model-selection',
   '#ml': 'ml-model-selection',
   '#performance': 'performance-analysis'
 };
 
 const TAB_TO_HASH = {
-  'realtime-datasets': '#realtime',
+  'datasets': '#datasets',
   'preprocessing-eda': '#eda',
-  'frame-question': '#question',
-  'spark-processing': '#spark',
   'results-visualisation': '#results',
   'conclude-decision': '#decision',
   'ml-model-selection': '#model',
@@ -48,9 +42,9 @@ const TAB_TO_HASH = {
 export default function App() {
   const getInitialTab = () => {
     if (typeof window !== 'undefined' && window.location.hash) {
-      return HASH_MAP[window.location.hash.toLowerCase()] || 'realtime-datasets';
+      return HASH_MAP[window.location.hash.toLowerCase()] || 'datasets';
     }
-    return 'realtime-datasets';
+    return 'datasets';
   };
 
   const [activeTab, setActiveTabState] = useState(getInitialTab);
@@ -60,7 +54,7 @@ export default function App() {
   const setActiveTab = (tabId) => {
     setActiveTabState(tabId);
     if (typeof window !== 'undefined') {
-      window.location.hash = TAB_TO_HASH[tabId] || '#realtime';
+      window.location.hash = TAB_TO_HASH[tabId] || '#datasets';
     }
   };
 
@@ -79,7 +73,6 @@ export default function App() {
   const [metricsData, setMetricsData] = useState(MOCK_MODEL_METRICS);
   const [decisionData, setDecisionData] = useState(MOCK_DECISIONS);
   const [spikeData, setSpikeData] = useState(MOCK_SPIKES);
-  const [streamData, setStreamData] = useState(MOCK_STREAM_MICROBATCHES);
 
   const fetchLiveBackend = async () => {
     setIsRefreshing(true);
@@ -99,7 +92,7 @@ export default function App() {
           setSummaryData(prev => ({ ...prev, ...sum }));
         }
       } catch (e) {
-        // use fallback
+        // fallback
       }
 
       // 3. Fetch Metrics
@@ -108,7 +101,6 @@ export default function App() {
         if (metRes.ok) {
           const met = await metRes.json();
           if (Array.isArray(met) && met.length > 0) {
-            // Merge with champion flags
             const formatted = met.map(m => ({
               ...m,
               is_champion: m.model?.includes('gradient') || m.model?.includes('gbt'),
@@ -118,7 +110,7 @@ export default function App() {
           }
         }
       } catch (e) {
-        // use fallback
+        // fallback
       }
 
       // 4. Fetch Decisions
@@ -131,7 +123,7 @@ export default function App() {
           }
         }
       } catch (e) {
-        // use fallback
+        // fallback
       }
 
       // 5. Fetch Spikes
@@ -144,23 +136,10 @@ export default function App() {
           }
         }
       } catch (e) {
-        // use fallback
-      }
-
-      // 6. Fetch Stream Metrics
-      try {
-        const stmRes = await fetch('/api/stream-metrics');
-        if (stmRes.ok) {
-          const stm = await stmRes.json();
-          if (Array.isArray(stm) && stm.length > 0) {
-            setStreamData(stm);
-          }
-        }
-      } catch (e) {
-        // use fallback
+        // fallback
       }
     } catch (err) {
-      console.warn("FastAPI backend not reached; running with precomputed BigData Review3 results cache.", err);
+      console.warn("Backend not reachable; running with precomputed Review 3 results.", err);
       setIsLiveConnected(false);
     } finally {
       setIsRefreshing(false);
@@ -173,14 +152,10 @@ export default function App() {
 
   const renderActivePage = () => {
     switch (activeTab) {
-      case 'realtime-datasets':
-        return <RealTimeDatasets summaryData={summaryData} streamData={streamData} />;
+      case 'datasets':
+        return <Datasets summaryData={summaryData} />;
       case 'preprocessing-eda':
         return <PreprocessingEDA />;
-      case 'frame-question':
-        return <FrameAnalysisQuestion />;
-      case 'spark-processing':
-        return <SparkProcessing />;
       case 'results-visualisation':
         return <ResultsVisualization />;
       case 'conclude-decision':
@@ -190,7 +165,7 @@ export default function App() {
       case 'performance-analysis':
         return <PerformanceAnalysis />;
       default:
-        return <RealTimeDatasets summaryData={summaryData} streamData={streamData} />;
+        return <Datasets summaryData={summaryData} />;
     }
   };
 
@@ -217,7 +192,7 @@ export default function App() {
             <span className="font-bold text-slate-700">Retail Demand Lab</span> — 23CSE352 Big Data Analytics Project Review 3
           </div>
           <div className="flex items-center space-x-4">
-            <span>Apache Spark 3.5.9</span>
+            <span>PySpark 3.5.9</span>
             <span>•</span>
             <span>PySpark MLlib</span>
             <span>•</span>
