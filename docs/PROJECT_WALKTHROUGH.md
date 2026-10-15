@@ -1,4 +1,4 @@
-wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww# Project Walkthrough: Why, How, and Who Benefits
+# Project Walkthrough: Why, How, and Who Benefits
 
 ## 1. Purpose of This Document
 
