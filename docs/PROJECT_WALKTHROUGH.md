@@ -244,7 +244,7 @@ EDA is used to understand the data before making a model or decision.
 
 ### Actual versus predicted sales
 
-**Why?** A table of metrics is important, but the plot shows whether predictions follow the timing and shape of actual demand.
+**Why?** A table of metrics is important, but the plot shows whether predictions follow the timing and shape of actual demand. The dashboard also shows horizon-wise rolling-origin error, residuals, and feature importance.
 
 ### Model performance comparison
 
@@ -444,9 +444,9 @@ The spike detector calculates, for each product-store series:
 
 - A trailing historical mean from the previous 28 observations
 - A trailing historical standard deviation
-- A spike score based on how far actual demand is above the historical mean
+- A one-sided Poisson upper-tail probability based on the trailing demand rate
 
-An observation is flagged when its score reaches the configured threshold of approximately three standard deviations.
+An observation is flagged when its Poisson upper-tail probability is at most 0.01, expected demand is at least one unit, and actual demand is above the trailing rate.
 
 ### Why use a product's own history?
 
@@ -476,7 +476,7 @@ The intended Spark responsibilities are:
 - Scaling to larger inputs or more stores
 - Using Spark MLlib where the runtime is configured for it
 
-During the verified run on this workstation, the installed project environment supported PySpark, but the end-to-end pipeline used its Pandas execution path and recorded that fact. This is documented deliberately.
+The project supports two explicit paths. The reference path uses Pandas for quick local iteration; `run_pipeline.py --engine spark` runs the real Spark DataFrame, window, and Spark MLlib path. The verified Spark run processed the full available slice locally with Spark 3.5.9 and Java 17. It is a local Spark run, not a multi-node benchmark.
 
 ### Why not claim distributed processing anyway?
 
@@ -577,7 +577,7 @@ Streamlit presents the evidence and a rule-based demand-prioritisation recommend
 
 ## 19. What Decision Does the Project Support?
 
-The measured Random Forest outperformed the weekly baseline on the chronological test period. Therefore, the supported decision is:
+The expanded benchmark and rolling-origin evaluation show a nuanced result: the 28-day moving average is strongest on the single-window benchmark, while Random Forest is stronger at rolling horizons 1-4 and weaker at horizons 5-7. The dashboard therefore uses forecast uplift as a planning signal rather than assuming that Random Forest always wins. The supported decision is:
 
 > Use the Random Forest forecast and spike outputs to prioritise which product-store combinations should receive inventory review first.
 
@@ -603,17 +603,17 @@ Without those fields, producing a precise order quantity would be fabricated.
 1. The source dataset is historical, not live real-time data.
 2. The dataset contains one store, so cross-store conclusions are unavailable.
 3. 96,789 sales rows lack an exact price match and require documented imputation.
-4. The HBase service could not be verified during the audit because ZooKeeper timed out.
-5. The tested end-to-end run is local fallback execution, not a measured cluster run.
+4. The HBase service could not be verified during the audit because ZooKeeper timed out; SQLite is the verified local serving alternative.
+5. The Spark run is local `local[*]`, not a measured multi-node cluster run.
 6. The recursive forecast uses the latest known price where future prices are unavailable.
 7. The forecast is evaluated on a historical holdout, but it is not a guarantee of future reliability.
 8. The recommendation does not use actual inventory or supply constraints.
 
 ### Future improvements
 
-1. Add a verified PySpark DataFrame implementation for the complete batch path.
-2. Add a safe HBase reader adapter that does not change existing tables.
-3. Add a simulated streaming replay clearly labelled as historical simulation.
+1. Add Spark/Pandas feature-parity fixtures and formal rolling no-leakage tests.
+2. Add a safe HBase serving adapter once the service is available, without changing existing source tables.
+3. Add refresh-from-API behavior to the dashboard while retaining the direct-file fallback.
 4. Add richer event, category, promotion, and price-change features.
 5. Compare Random Forest with seasonal naive, gradient boosting, and dedicated time-series models.
 6. Evaluate rolling-origin backtests across multiple historical test windows.

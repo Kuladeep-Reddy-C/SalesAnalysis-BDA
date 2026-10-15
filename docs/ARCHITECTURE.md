@@ -4,9 +4,9 @@
 2. **Validation**: required columns, numeric types, non-negative values, nulls, duplicate natural keys, and join matches are reported.
 3. **Join**: sales joins calendar on `d`, then prices on `store_id`, `item_id`, and `wm_yr_wk`. Both joins are validated as many-to-one to prevent row multiplication.
 4. **Features**: lag 1, 7, and 28 days; trailing 7 and 28 day means excluding the current observation; price; weekday; month; and event indicator.
-5. **Models**: `lag_7` historical baseline and scikit-learn Random Forest. The project includes PySpark support utilities and PySpark in requirements, but the measured end-to-end run used Pandas fallback on this workstation.
+5. **Models**: seven reference baselines and a scikit-learn Random Forest in the reference path; Spark MLlib Random Forest in the Spark path. A Spark GBT challenger is implemented but did not produce a validated artifact because the local executor became unstable during the second fit.
 6. **Outputs**: chronological test predictions, metrics, recursive seven-day forecast, spike records, charts, and a pickled model.
-7. **Presentation**: Streamlit reads outputs only. It displays data source and execution mode.
+7. **Serving and presentation**: API endpoints expose persisted forecasts, spikes, metrics, and decisions. A local SQLite serving store is available as a runnable alternative to unavailable HBase. Streamlit displays persisted outputs and execution mode.
 8. **Simulated stream**: `stream/replay.py` emits historical day-sized JSON batches and `stream/stream_job.py` processes them with Spark Structured Streaming, checkpointing, and labelled micro-batch outputs.
 
-No HBase tables are changed by Review3. No distributed speedup is claimed. HDFS/HBase integration is an optional future adapter because live HBase access could not be verified during the audit.
+No existing HBase tables are changed by Review3. The verified Spark run is local `local[*]`, not a multi-node speedup benchmark. HBase remains an optional external backend; SQLite is the verified local serving alternative.
