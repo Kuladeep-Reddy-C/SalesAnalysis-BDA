@@ -1,7 +1,7 @@
 import pandas as pd
 from analytics.baselines import add_baseline_predictions
 from analytics.metrics import mase, regression_metrics
-from analytics.preprocess import add_features, build_daily_dataset
+from analytics.preprocess import add_features, build_daily_dataset, price_availability_report
 from analytics.spikes import detect_spikes
 
 
@@ -23,6 +23,13 @@ def test_join_is_many_to_one_and_reports_matches():
     calendar = pd.DataFrame({'d':['d_1'], 'date':['2020-01-01'], 'wm_yr_wk':[1], 'weekday':['Wednesday'], 'month':[1], 'year':[2020], 'event_name_1':['None'], 'event_name_2':['None']})
     result, joins = build_daily_dataset(sales, prices, calendar)
     assert len(result) == 1 and joins['unmatched_prices'] == 0
+
+
+def test_price_availability_report_preserves_unmatched_signal():
+    daily = sample_daily(40)
+    daily['is_available'] = [1] * 20 + [0] * 20
+    report = price_availability_report(daily)
+    assert report['unavailable_rows'].sum() == 20
 
 
 def test_zero_denominator_wape_is_nan():

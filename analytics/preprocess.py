@@ -48,12 +48,26 @@ def build_daily_dataset(sales: pd.DataFrame, prices: pd.DataFrame, calendar: pd.
     unmatched_calendar = int((merged["calendar_match"] == "left_only").sum())
     merged = merged.merge(prices, on=["store_id", "item_id", "wm_yr_wk"], how="left", validate="many_to_one", indicator="price_match")
     unmatched_prices = int((merged["price_match"] == "left_only").sum())
+    merged["is_available"] = (merged["price_match"] == "both").astype(int)
     merged["sell_price"] = merged["sell_price"].fillna(merged.groupby("item_id")["sell_price"].transform("median"))
     merged["sell_price"] = merged["sell_price"].fillna(merged["sell_price"].median())
     merged["is_event"] = ((merged["event_name_1"].fillna("None") != "None") | (merged["event_name_2"].fillna("None") != "None")).astype(int)
     merged["date"] = pd.to_datetime(merged["date"])
     merged = merged.sort_values(["item_id", "store_id", "date"]).reset_index(drop=True)
     return merged, {"unmatched_calendar": unmatched_calendar, "unmatched_prices": unmatched_prices, "output_rows": len(merged)}
+
+
+def price_availability_report(daily: pd.DataFrame) -> pd.DataFrame:
+    """Summarize whether missing prices cluster by product age."""
+    result = daily.copy()
+    first_sale = result.groupby(["item_id", "store_id"])["date"].transform("min")
+    result["item_age_days"] = (result["date"] - first_sale).dt.days
+    result["age_bucket"] = pd.cut(result["item_age_days"], bins=[-1, 28, 90, 365, 10000], labels=["0-28", "29-90", "91-365", "366+"])
+    return result.groupby("age_bucket", observed=False).agg(
+        rows=("item_id", "size"),
+        unavailable_rows=("is_available", lambda values: int((values == 0).sum())),
+        unavailable_rate=("is_available", lambda values: float((values == 0).mean())),
+    ).reset_index()
 
 
 def add_features(daily: pd.DataFrame) -> pd.DataFrame:

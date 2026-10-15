@@ -42,3 +42,27 @@ This file records the ordered improvement work requested from the critical evalu
 **Measured result:** The 28-day moving average is strongest on the current test window: MAE `1.0601`, RMSE `2.4059`, WAPE `0.8926`. Random Forest scores MAE `1.0699`, RMSE `2.4246`, WAPE `0.9009`. The project now states that Random Forest is a challenger, not the selected winner, until rolling-origin evaluation provides stronger evidence.
 
 **Validation:** Real-data pipeline completed successfully and all 5 tests passed.
+
+### Item 3: Implement rolling-origin seven-day backtesting
+
+**Status:** Completed.
+
+**What was there:** The original test metrics were calculated from rows whose lag features could use actual values from the test period. That evaluated a one-step-style holdout, not a strict recursive seven-day forecast.
+
+**What changed:** Added `analytics/rolling_backtest.py` and the `--rolling-backtest` command option. The implementation trains at four weekly origins, forecasts horizons 1 through 7 recursively, and writes `results/metrics/horizon_metrics.csv` plus `results/predictions/rolling_origin_predictions.csv`. Generated predictions are appended to temporary history; future actual sales are never used as lag inputs.
+
+**Measured result:** Random Forest has lower WAPE than the 28-day moving average at horizons 1-4, while the moving average is better at horizons 5-7. The rolling run produced 7,392 predictions across four origins in approximately 141 seconds. The result supports a horizon-dependent model decision rather than a blanket claim that Random Forest wins.
+
+**Validation:** Rolling-origin real-data run completed and all 7 tests passed.
+
+### Item 4: Investigate missing-price semantics
+
+**Status:** Investigation completed; handling comparison remains.
+
+**What was there:** Missing price rows were imputed, but the project did not preserve an explicit availability signal or analyze whether unmatched rows clustered near product launch.
+
+**What changed:** Added `is_available` to the joined daily dataset and added `price_availability_report`, which groups unmatched price rows by product age into `results/metrics/price_availability.csv`.
+
+**Measured finding:** Unavailable prices are concentrated early in product history: unavailable rates are `62.4%` at age 0-28 days, `58.3%` at 29-90 days, `49.9%` at 91-365 days, and `11.3%` after 366 days. This supports treating missing prices as an availability signal rather than assuming the median price is always observed. The age-bucket evidence is persisted in `results/metrics/price_availability.csv`.
+
+**Remaining work:** Add a measured model comparison with unavailable rows excluded versus retained with an `is_available` feature before changing the production training policy.

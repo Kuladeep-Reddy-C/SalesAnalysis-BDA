@@ -168,6 +168,8 @@ These are workstation measurements for the verified local run. They are not a cl
 | `results/metrics/data_quality.csv` | Input counts, nulls, duplicate keys, and quality checks |
 | `results/metrics/model_metrics.csv` | Seven baselines plus Random Forest, scaled and revenue-weighted metrics |
 | `results/metrics/demand_bucket_metrics.csv` | Random Forest error by item demand bucket |
+| `results/metrics/horizon_metrics.csv` | Rolling-origin error for forecast horizons 1 through 7 |
+| `results/metrics/price_availability.csv` | Missing-price rates by product age |
 | `results/metrics/run_summary.json` | Execution mode, timings, joins, and split dates |
 | `results/predictions/test_predictions.csv` | Historical holdout predictions |
 | `results/predictions/seven_day_forecast.csv` | Recursive future forecast rows |

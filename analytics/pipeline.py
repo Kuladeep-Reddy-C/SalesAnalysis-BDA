@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestRegressor
 from config import Config
 from analytics.baselines import add_baseline_predictions, add_croston_prediction
 from analytics.metrics import mase, regression_metrics, revenue_weighted_absolute_error
-from analytics.preprocess import add_features, build_daily_dataset, quality_report, read_inputs
+from analytics.preprocess import add_features, build_daily_dataset, price_availability_report, quality_report, read_inputs
 from analytics.spark_support import spark_available
 from analytics.spikes import detect_spikes
 
@@ -69,6 +69,7 @@ def run(config: Config | None = None) -> dict:
         bucket_rows.append({"demand_bucket": str(bucket), **regression_metrics(frame["sales"], frame["rf_prediction"]), "rows": len(frame)})
     pd.DataFrame(bucket_rows).to_csv(config.results / "metrics" / "demand_bucket_metrics.csv", index=False)
     quality.to_csv(config.results / "metrics" / "data_quality.csv", index=False)
+    price_availability_report(daily).to_csv(config.results / "metrics" / "price_availability.csv", index=False)
     metrics.to_csv(config.results / "metrics" / "model_metrics.csv", index=False)
     with (config.models / "random_forest.pkl").open("wb") as handle:
         pickle.dump({"model": model, "features": FEATURES}, handle)
