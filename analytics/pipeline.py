@@ -8,7 +8,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
 from config import Config
-from analytics.metrics import regression_metrics
+from analytics.baselines import add_baseline_predictions, add_croston_prediction
+from analytics.metrics import mase, regression_metrics, revenue_weighted_absolute_error
 from analytics.preprocess import add_features, build_daily_dataset, quality_report, read_inputs
 from analytics.spark_support import spark_available
 from analytics.spikes import detect_spikes
@@ -37,14 +38,36 @@ def run(config: Config | None = None) -> dict:
     training_seconds = time.perf_counter() - model_started
     prediction_started = time.perf_counter()
     test = test.copy()
-    test["baseline_prediction"] = test["lag_7"]
+    test = add_baseline_predictions(train, test)
+    test = add_croston_prediction(train, test)
     test["rf_prediction"] = model.predict(test[FEATURES]).clip(min=0)
     prediction_seconds = time.perf_counter() - prediction_started
     metric_rows = []
-    for name, column in (("historical_baseline", "baseline_prediction"), ("random_forest", "rf_prediction")):
-        metric_rows.append({"model": name, **regression_metrics(test["sales"], test[column]), "train_rows": len(train), "validation_rows": len(validation), "test_rows": len(test)})
+    prediction_columns = [
+        ("all_zero", "zero_prediction"),
+        ("global_mean", "global_mean_prediction"),
+        ("item_mean", "item_mean_prediction"),
+        ("last_value", "last_value_prediction"),
+        ("seasonal_naive_7", "seasonal_naive_prediction"),
+        ("moving_average_28", "moving_average_28_prediction"),
+        ("croston_sba", "croston_sba_prediction"),
+        ("random_forest", "rf_prediction"),
+    ]
+    for name, column in prediction_columns:
+        metric = regression_metrics(test["sales"], test[column])
+        metric["mase"] = mase(test["sales"], test[column], train["sales"])
+        metric["revenue_weighted_absolute_error"] = revenue_weighted_absolute_error(test["sales"], test[column], test["sell_price"])
+        metric_rows.append({"model": name, **metric, "train_rows": len(train), "validation_rows": len(validation), "test_rows": len(test)})
     metrics = pd.DataFrame(metric_rows)
-    test[["date", "item_id", "store_id", "sales", "baseline_prediction", "rf_prediction"]].to_csv(config.results / "predictions" / "test_predictions.csv", index=False)
+    prediction_names = [column for _, column in prediction_columns]
+    test[["date", "item_id", "store_id", "sales", "sell_price"] + prediction_names].to_csv(config.results / "predictions" / "test_predictions.csv", index=False)
+    item_means = train.groupby("item_id")["sales"].mean()
+    bucket_values = item_means.reindex(test["item_id"]).fillna(0).rank(method="first")
+    test["demand_bucket"] = pd.qcut(bucket_values.to_numpy(), 4, labels=["zero_or_low", "low", "medium", "high"])
+    bucket_rows = []
+    for bucket, frame in test.groupby("demand_bucket", observed=False):
+        bucket_rows.append({"demand_bucket": str(bucket), **regression_metrics(frame["sales"], frame["rf_prediction"]), "rows": len(frame)})
+    pd.DataFrame(bucket_rows).to_csv(config.results / "metrics" / "demand_bucket_metrics.csv", index=False)
     quality.to_csv(config.results / "metrics" / "data_quality.csv", index=False)
     metrics.to_csv(config.results / "metrics" / "model_metrics.csv", index=False)
     with (config.models / "random_forest.pkl").open("wb") as handle:

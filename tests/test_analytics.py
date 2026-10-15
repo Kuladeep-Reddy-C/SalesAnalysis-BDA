@@ -1,5 +1,6 @@
 import pandas as pd
-from analytics.metrics import regression_metrics
+from analytics.baselines import add_baseline_predictions
+from analytics.metrics import mase, regression_metrics
 from analytics.preprocess import add_features, build_daily_dataset
 from analytics.spikes import detect_spikes
 
@@ -27,6 +28,20 @@ def test_join_is_many_to_one_and_reports_matches():
 def test_zero_denominator_wape_is_nan():
     result = regression_metrics(pd.Series([0, 0]), pd.Series([0, 1]))
     assert pd.isna(result['wape'])
+
+
+def test_baselines_use_named_historical_signals():
+    frame = add_features(sample_daily(40))
+    train = frame.iloc[:30]
+    test = add_baseline_predictions(train, frame.iloc[30:])
+    assert (test['zero_prediction'] == 0).all()
+    assert (test['seasonal_naive_prediction'] == test['lag_7']).all()
+    assert test['moving_average_28_prediction'].notna().all()
+
+
+def test_mase_uses_training_scale():
+    result = mase(pd.Series([2.0, 3.0]), pd.Series([1.0, 2.0]), pd.Series([1.0, 2.0, 3.0]))
+    assert result == 1.0
 
 
 def test_spike_detection_requires_history():

@@ -33,10 +33,10 @@ This project is built for an academic Big Data Analytics review. It connects dat
 | **1. Real-time data sets** | The supplied data is historical. The project provides a reproducible batch workflow and a clearly labelled seven-day forecast; any future replay of historical rows must be treated as simulated streaming, not live external data. | `Review2/*.csv`, `results/predictions/seven_day_forecast.csv` |
 | **2. Preprocessing and EDA** | Validates schemas, numeric fields, nulls, duplicate natural keys, dates, many-to-one joins, missing prices, trends, products, stores, and price relationships. | `analytics/preprocess.py`, `analytics/eda.py`, `results/charts/` |
 | **3. Analysis question** | Frames a focused demand-forecasting and inventory-prioritisation question suitable for a 15-minute review. | This README and `docs/REVIEW_GUIDE.md` |
-| **4. Spark / PySpark** | PySpark 3.5 is included in the environment and Spark session utilities are provided. The verified local run records its Pandas fallback honestly; no unmeasured distributed speedup is claimed. | `requirements.txt`, `analytics/spark_support.py`, `results/metrics/run_summary.json` |
+| **4. Spark / PySpark** | The project now has an explicit Spark execution path for DataFrames, window features, chronological evaluation, and Spark MLlib Random Forest. Pandas remains available as a reference engine; no multi-node speedup is claimed. | `run_pipeline.py --engine spark`, `analytics/spark_pipeline.py`, `results/metrics/spark_run_summary.json` |
 | **5. Results and visualisation** | Produces seven saved charts plus an interactive Streamlit dashboard for trends, forecasts, spikes, metrics, and recommendations. | `results/charts/`, `dashboard/app.py` |
 | **6. Analysis decision** | Prioritise products with high recent or predicted demand for inventory review, while avoiding fabricated stockout or savings claims. | Dashboard and `docs/MODEL_EVALUATION.md` |
-| **7. Suitable ML model** | Compares a transparent seven-day historical baseline with a deterministic Random Forest regressor and selects using chronological test metrics. | `analytics/pipeline.py`, `results/metrics/model_metrics.csv` |
+| **7. Suitable ML model** | Compares seven transparent demand baselines with a deterministic Random Forest regressor using chronological test metrics. | `analytics/baselines.py`, `analytics/pipeline.py`, `results/metrics/model_metrics.csv` |
 | **8. Performance analysis** | Persists MAE, RMSE, WAPE, preprocessing time, training time, prediction time, row counts, and split dates. | `results/metrics/`, `docs/MODEL_EVALUATION.md` |
 
 ### Verified dataset
@@ -94,6 +94,14 @@ The source files remain in `../Review2`; existing loaders, tables, and infrastru
 
 This creates the quality report, joined daily dataset, model, predictions, recursive seven-day forecast, demand-spike records, metrics, and charts.
 
+To execute the Spark path explicitly:
+
+```bash
+.venv/bin/python run_pipeline.py --engine spark
+```
+
+The Spark run records `engine`, Spark version, master, shuffle partitions, row counts, join counts, and timings in `results/metrics/spark_run_summary.json`. It writes Spark-specific metrics and predictions under `results/metrics/spark_model_metrics.csv` and `results/predictions/spark_test_predictions.csv`.
+
 ### 3. Run tests
 
 ```bash
@@ -131,12 +139,13 @@ The model is evaluated on the same chronological test window:
 
 | Model | MAE | RMSE | WAPE |
 |---|---:|---:|---:|
-| Historical baseline | 1.3281 | 3.3600 | 1.1182 |
-| **Random Forest** | **1.0699** | **2.4246** | **0.9009** |
+| 28-day moving average | **1.0601** | **2.4059** | **0.8926** |
+| Random Forest | 1.0699 | 2.4246 | 0.9009 |
+| Seasonal naive (7 days) | 1.3281 | 3.3600 | 1.1182 |
 
-The Random Forest reduced MAE by approximately **19.4%**, RMSE by **27.8%**, and WAPE by **19.4%** against the baseline in the measured test run. The defensible business decision is therefore:
+The expanded benchmark shows that the **28-day moving average is the strongest measured model on this test window**, narrowly outperforming the current Random Forest. The defensible business decision is therefore:
 
-> **Use the Random Forest forecast as a demand-prioritisation signal for inventory review, especially for products with high recent demand or flagged deviations. Do not convert it into a reorder quantity until current stock, lead time, service level, and supply constraints are available.**
+> **Use the strongest validated forecast, currently the 28-day moving average, as a demand-prioritisation signal for inventory review. Keep Random Forest as a challenger until rolling-origin evaluation demonstrates a durable advantage. Do not convert a forecast into a reorder quantity until current stock, lead time, service level, and supply constraints are available.**
 
 This conclusion is evidence-based and deliberately limited. It does not claim causation from price or events, a live feed, multi-node speedup, stockout probability, or monetary savings.
 
@@ -157,7 +166,8 @@ These are workstation measurements for the verified local run. They are not a cl
 | Output | Purpose |
 |---|---|
 | `results/metrics/data_quality.csv` | Input counts, nulls, duplicate keys, and quality checks |
-| `results/metrics/model_metrics.csv` | Baseline and Random Forest metrics |
+| `results/metrics/model_metrics.csv` | Seven baselines plus Random Forest, scaled and revenue-weighted metrics |
+| `results/metrics/demand_bucket_metrics.csv` | Random Forest error by item demand bucket |
 | `results/metrics/run_summary.json` | Execution mode, timings, joins, and split dates |
 | `results/predictions/test_predictions.csv` | Historical holdout predictions |
 | `results/predictions/seven_day_forecast.csv` | Recursive future forecast rows |
@@ -200,6 +210,7 @@ Review3/
 
 ## Documentation
 
+- [Project walkthrough: why, how, and who benefits](docs/PROJECT_WALKTHROUGH.md)
 - [Project audit](docs/PROJECT_AUDIT.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [EDA findings](docs/EDA_FINDINGS.md)
@@ -212,5 +223,5 @@ Review3/
 - The supplied CSV dataset is historical, not a genuine live real-time feed.
 - A replay of historical rows would be **simulated streaming** and must be labelled that way.
 - HBase remains the optional NoSQL backend from Review2; Review3 did not alter its tables.
-- The tested run uses the reproducible local fallback path and reports that mode. No distributed Spark speedup is claimed without a measured Spark run.
+- The default reference run uses Pandas, while `--engine spark` executes the real local Spark path. No distributed Spark speedup is claimed without a multi-node measurement.
 - Inventory recommendations are demand-based because inventory levels, lead times, costs, and service targets were not supplied.
