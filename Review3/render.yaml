@@ -3,9 +3,10 @@ services:
     name: retail-demand-lab
     env: python
     plan: free
-    branch: BigData
-    buildCommand: pip install -r requirements.txt
+    rootDir: Review3
+    buildCommand: pip install -r requirements-render.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: SERVING_BACKEND
         value: sqlite

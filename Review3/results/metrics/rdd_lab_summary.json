@@ -1,0 +1,337 @@
+{
+  "engine": "pyspark-rdd",
+  "spark_version": "4.0.4",
+  "master": "local[*]",
+  "input": "/home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv",
+  "profile_count": 4,
+  "profiles": [
+    {
+      "id": "person-1-product-velocity",
+      "owner": "Person 1",
+      "title": "Product velocity",
+      "question": "Which products contribute the most demand, and how many sales observations support that result?",
+      "purpose": "Product-level prioritisation for replenishment review.",
+      "key_description": "item_id",
+      "input_rows_after_filter": 161725,
+      "partitions": 2,
+      "partition_preview": [
+        {
+          "partition": 0,
+          "rows": 67798
+        },
+        {
+          "partition": 1,
+          "rows": 93927
+        }
+      ],
+      "top_totals": [
+        {
+          "key": "HOBBIES_1_268",
+          "value": 18904.0
+        },
+        {
+          "key": "HOBBIES_1_178",
+          "value": 15808.0
+        },
+        {
+          "key": "HOBBIES_1_256",
+          "value": 15419.0
+        },
+        {
+          "key": "HOBBIES_1_254",
+          "value": 15041.0
+        },
+        {
+          "key": "HOBBIES_1_048",
+          "value": 13867.0
+        },
+        {
+          "key": "HOBBIES_1_008",
+          "value": 13830.0
+        },
+        {
+          "key": "HOBBIES_1_189",
+          "value": 12319.0
+        },
+        {
+          "key": "HOBBIES_1_015",
+          "value": 11602.0
+        }
+      ],
+      "sorted_key_sample": [
+        {
+          "key": "HOBBIES_1_001",
+          "observations": 421
+        },
+        {
+          "key": "HOBBIES_1_002",
+          "observations": 402
+        },
+        {
+          "key": "HOBBIES_1_003",
+          "observations": 216
+        },
+        {
+          "key": "HOBBIES_1_004",
+          "observations": 1296
+        },
+        {
+          "key": "HOBBIES_1_005",
+          "observations": 963
+        },
+        {
+          "key": "HOBBIES_1_006",
+          "observations": 652
+        },
+        {
+          "key": "HOBBIES_1_007",
+          "observations": 354
+        },
+        {
+          "key": "HOBBIES_1_008",
+          "observations": 1378
+        }
+      ],
+      "concepts": {
+        "transformations": [
+          "map",
+          "filter",
+          "flatMap",
+          "reduceByKey",
+          "groupByKey",
+          "mapValues",
+          "sortByKey",
+          "mapPartitionsWithIndex"
+        ],
+        "actions": [
+          "first",
+          "count",
+          "take",
+          "collect"
+        ],
+        "persistence": "Memory Serialized 1x Replicated",
+        "lineage": "(2) PythonRDD[3] at RDD at PythonRDD.scala:57 [Memory Serialized 1x Replicated]\n |       CachedPartitions: 2; MemorySize: 1456.4 KiB; DiskSize: 0.0 B\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]",
+        "dag": "map/filter are narrow stages; reduceByKey, groupByKey, and sortByKey introduce shuffle stages.",
+        "fault_tolerance": "If a partition is lost, Spark can recompute it from the CSV and this transformation lineage."
+      }
+    },
+    {
+      "id": "person-2-department-demand",
+      "owner": "Person 2",
+      "title": "Department demand",
+      "question": "How is demand distributed across departments?",
+      "purpose": "Department-level workload planning for category managers.",
+      "key_description": "dept_id",
+      "input_rows_after_filter": 505032,
+      "partitions": 2,
+      "partition_preview": [
+        {
+          "partition": 0,
+          "rows": 254207
+        },
+        {
+          "partition": 1,
+          "rows": 250825
+        }
+      ],
+      "top_totals": [
+        {
+          "key": "HOBBIES_1",
+          "value": 492504.0
+        }
+      ],
+      "sorted_key_sample": [
+        {
+          "key": "HOBBIES_1",
+          "observations": 505032
+        }
+      ],
+      "concepts": {
+        "transformations": [
+          "map",
+          "filter",
+          "flatMap",
+          "reduceByKey",
+          "groupByKey",
+          "mapValues",
+          "sortByKey",
+          "mapPartitionsWithIndex"
+        ],
+        "actions": [
+          "first",
+          "count",
+          "take",
+          "collect"
+        ],
+        "persistence": "Memory Serialized 1x Replicated",
+        "lineage": "(2) PythonRDD[29] at RDD at PythonRDD.scala:57 [Memory Serialized 1x Replicated]\n |       CachedPartitions: 2; MemorySize: 4.0 MiB; DiskSize: 0.0 B\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]",
+        "dag": "map/filter are narrow stages; reduceByKey, groupByKey, and sortByKey introduce shuffle stages.",
+        "fault_tolerance": "If a partition is lost, Spark can recompute it from the CSV and this transformation lineage."
+      }
+    },
+    {
+      "id": "person-3-store-category-mix",
+      "owner": "Person 3",
+      "title": "Store/category mix",
+      "question": "Which store and category combinations carry the strongest demand?",
+      "purpose": "Store-category comparison that remains useful when more stores are loaded.",
+      "key_description": "store_id + cat_id",
+      "input_rows_after_filter": 161725,
+      "partitions": 2,
+      "partition_preview": [
+        {
+          "partition": 0,
+          "rows": 67798
+        },
+        {
+          "partition": 1,
+          "rows": 93927
+        }
+      ],
+      "top_totals": [
+        {
+          "key": "CA_1 @ HOBBIES",
+          "value": 492504.0
+        }
+      ],
+      "sorted_key_sample": [
+        {
+          "key": "CA_1 @ HOBBIES",
+          "observations": 161725
+        }
+      ],
+      "concepts": {
+        "transformations": [
+          "map",
+          "filter",
+          "flatMap",
+          "reduceByKey",
+          "groupByKey",
+          "mapValues",
+          "sortByKey",
+          "mapPartitionsWithIndex"
+        ],
+        "actions": [
+          "first",
+          "count",
+          "take",
+          "collect"
+        ],
+        "persistence": "Memory Serialized 1x Replicated",
+        "lineage": "(2) PythonRDD[57] at RDD at PythonRDD.scala:57 [Memory Serialized 1x Replicated]\n |       CachedPartitions: 2; MemorySize: 1456.4 KiB; DiskSize: 0.0 B\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]",
+        "dag": "map/filter are narrow stages; reduceByKey, groupByKey, and sortByKey introduce shuffle stages.",
+        "fault_tolerance": "If a partition is lost, Spark can recompute it from the CSV and this transformation lineage."
+      }
+    },
+    {
+      "id": "person-4-intermittent-demand",
+      "owner": "Person 4",
+      "title": "Intermittent demand activity",
+      "question": "Which products have the most active selling days rather than only the largest totals?",
+      "purpose": "Separate frequent activity from one-off high-volume demand.",
+      "key_description": "item_id on positive-sales days",
+      "input_rows_after_filter": 161725,
+      "partitions": 2,
+      "partition_preview": [
+        {
+          "partition": 0,
+          "rows": 67798
+        },
+        {
+          "partition": 1,
+          "rows": 93927
+        }
+      ],
+      "top_totals": [
+        {
+          "key": "HOBBIES_1_254",
+          "value": 1677.0
+        },
+        {
+          "key": "HOBBIES_1_015",
+          "value": 1540.0
+        },
+        {
+          "key": "HOBBIES_1_134",
+          "value": 1528.0
+        },
+        {
+          "key": "HOBBIES_1_147",
+          "value": 1522.0
+        },
+        {
+          "key": "HOBBIES_1_268",
+          "value": 1521.0
+        },
+        {
+          "key": "HOBBIES_1_016",
+          "value": 1520.0
+        },
+        {
+          "key": "HOBBIES_1_256",
+          "value": 1457.0
+        },
+        {
+          "key": "HOBBIES_1_178",
+          "value": 1456.0
+        }
+      ],
+      "sorted_key_sample": [
+        {
+          "key": "HOBBIES_1_001",
+          "observations": 421
+        },
+        {
+          "key": "HOBBIES_1_002",
+          "observations": 402
+        },
+        {
+          "key": "HOBBIES_1_003",
+          "observations": 216
+        },
+        {
+          "key": "HOBBIES_1_004",
+          "observations": 1296
+        },
+        {
+          "key": "HOBBIES_1_005",
+          "observations": 963
+        },
+        {
+          "key": "HOBBIES_1_006",
+          "observations": 652
+        },
+        {
+          "key": "HOBBIES_1_007",
+          "observations": 354
+        },
+        {
+          "key": "HOBBIES_1_008",
+          "observations": 1378
+        }
+      ],
+      "concepts": {
+        "transformations": [
+          "map",
+          "filter",
+          "flatMap",
+          "reduceByKey",
+          "groupByKey",
+          "mapValues",
+          "sortByKey",
+          "mapPartitionsWithIndex"
+        ],
+        "actions": [
+          "first",
+          "count",
+          "take",
+          "collect"
+        ],
+        "persistence": "Memory Serialized 1x Replicated",
+        "lineage": "(2) PythonRDD[85] at RDD at PythonRDD.scala:57 [Memory Serialized 1x Replicated]\n |       CachedPartitions: 2; MemorySize: 1456.4 KiB; DiskSize: 0.0 B\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]\n |  /home/kuladeepreddyc/Documents/BigData/Review2/sales_processed_clean.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:0 [Memory Serialized 1x Replicated]",
+        "dag": "map/filter are narrow stages; reduceByKey, groupByKey, and sortByKey introduce shuffle stages.",
+        "fault_tolerance": "If a partition is lost, Spark can recompute it from the CSV and this transformation lineage."
+      }
+    }
+  ]
+}
