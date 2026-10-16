@@ -9,6 +9,25 @@ const conceptLabels = [
 ];
 
 export default function RddLab({ data }) {
+  const [customNames, setCustomNames] = React.useState(() => {
+    try {
+      const saved = localStorage.getItem('rdd_lab_custom_names');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const handleNameChange = (id, newName) => {
+    setCustomNames((prev) => {
+      const updated = { ...prev, [id]: newName };
+      try {
+        localStorage.setItem('rdd_lab_custom_names', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn">
       <div className="border-b border-slate-200 pb-5">
@@ -41,11 +60,20 @@ export default function RddLab({ data }) {
         <div className="space-y-5">
           <div className="flex items-center gap-2 text-xs text-slate-500"><GitBranch className="w-4 h-4" /> {data.engine} · Spark {data.spark_version} · {data.master} · {data.profile_count} profiles</div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {data.profiles.map((profile) => (
+            {data.profiles.map((profile, index) => (
               <article key={profile.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-                <div className="flex justify-between gap-4">
-                  <div><p className="text-[11px] uppercase tracking-wide font-bold text-brand-600">{profile.owner}</p><h2 className="text-lg font-bold text-slate-900 mt-1">{profile.title}</h2></div>
-                  <span className="text-[11px] font-mono text-slate-400">{profile.partitions} partitions</span>
+                <div className="flex justify-between items-start gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      value={customNames[profile.id] ?? ''}
+                      onChange={(e) => handleNameChange(profile.id, e.target.value)}
+                      placeholder={`Person ${index + 1}`}
+                      className="text-[11px] uppercase tracking-wide font-bold text-brand-600 placeholder:text-brand-400 bg-slate-50/70 hover:bg-slate-100/70 focus:bg-white border border-slate-200 hover:border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded px-2 py-0.5 outline-none transition-all w-48 block"
+                    />
+                    <h2 className="text-lg font-bold text-slate-900 mt-1">{profile.title}</h2>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-400 shrink-0">{profile.partitions} partitions</span>
                 </div>
                 <p className="text-sm text-slate-600 mt-3">{profile.question}</p>
                 <p className="text-xs text-slate-500 mt-2">{profile.purpose} Key: <strong>{profile.key_description}</strong></p>
