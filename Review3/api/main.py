@@ -87,7 +87,8 @@ def api_endpoints() -> dict:
             "/api/horizon",
             "/api/performance",
             "/api/stream-metrics",
-            "/api/spike-validation"
+            "/api/spike-validation",
+            "/api/rdd-lab"
         ],
     }
 
@@ -241,3 +242,8 @@ def stream_metrics(limit: int = 50) -> list[dict]:
 @app.get("/api/spike-validation")
 def spike_validation() -> list[dict]:
     return read_csv_safe("metrics/spike_validation.csv")
+
+
+@app.get("/api/rdd-lab")
+def rdd_lab() -> dict:
+    return read_json_safe("metrics/rdd_lab_summary.json")

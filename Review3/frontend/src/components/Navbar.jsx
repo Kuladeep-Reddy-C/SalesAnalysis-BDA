@@ -8,6 +8,7 @@ import {
   Zap, 
   RefreshCw,
   Server
+  ,Layers3
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
@@ -17,6 +18,7 @@ export const NAV_ITEMS = [
   { id: 'ml-model-selection',    label: 'ML Models',       icon: Binary       },
   { id: 'performance-analysis',  label: 'Performance',     icon: Zap          },
   { id: 'conclude-decision',     label: 'Conclusion',      icon: CheckCircle2 },
+  { id: 'rdd-lab',               label: 'RDD Lab',          icon: Layers3      },
 ];
 
 export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefresh, isRefreshing }) {
@@ -66,9 +68,9 @@ export default function Navbar({ activeTab, onSelectTab, isLiveConnected, onRefr
           </div>
         </div>
 
-        {/* Navigation Tabs — 6 items, perfectly fitted in a responsive 6-col grid, zero horizontal scroll */}
+        {/* Navigation Tabs */}
         <nav className="w-full py-1.5 overflow-hidden">
-          <div className="grid grid-cols-6 gap-1 sm:gap-2 w-full">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 sm:gap-2 w-full">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;

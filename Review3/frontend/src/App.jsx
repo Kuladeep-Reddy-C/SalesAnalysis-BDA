@@ -6,6 +6,7 @@ import ResultsVisualization from './pages/ResultsVisualization';
 import ConcludeDecision from './pages/ConcludeDecision';
 import MLModelSelection from './pages/MLModelSelection';
 import PerformanceAnalysis from './pages/PerformanceAnalysis';
+import RddLab from './pages/RddLab';
 
 import { 
   MOCK_SUMMARY, 
@@ -29,6 +30,8 @@ const HASH_MAP = {
   '#decision': 'conclude-decision',
   '#decisions': 'conclude-decision',
   '#conclusion': 'conclude-decision'
+  ,'#rdd': 'rdd-lab'
+  ,'#rdd-lab': 'rdd-lab'
 };
 
 const TAB_TO_HASH = {
@@ -38,6 +41,7 @@ const TAB_TO_HASH = {
   'ml-model-selection': '#model',
   'performance-analysis': '#performance',
   'conclude-decision': '#decision'
+  ,'rdd-lab': '#rdd-lab'
 };
 
 export default function App() {
@@ -74,6 +78,7 @@ export default function App() {
   const [metricsData, setMetricsData] = useState(MOCK_MODEL_METRICS);
   const [decisionData, setDecisionData] = useState(MOCK_DECISIONS);
   const [spikeData, setSpikeData] = useState(MOCK_SPIKES);
+  const [rddLabData, setRddLabData] = useState(null);
 
   const fetchLiveBackend = async () => {
     setIsRefreshing(true);
@@ -139,6 +144,16 @@ export default function App() {
       } catch (e) {
         // fallback
       }
+
+      try {
+        const rddRes = await fetch('/api/rdd-lab');
+        if (rddRes.ok) {
+          const rdd = await rddRes.json();
+          if (rdd.profile_count) setRddLabData(rdd);
+        }
+      } catch (e) {
+        // RDD lab is optional until its Spark job has been run.
+      }
     } catch (err) {
       console.warn("Backend not reachable; running with precomputed Review 3 results.", err);
       setIsLiveConnected(false);
@@ -165,6 +180,8 @@ export default function App() {
         return <MLModelSelection metricsData={metricsData} />;
       case 'performance-analysis':
         return <PerformanceAnalysis />;
+      case 'rdd-lab':
+        return <RddLab data={rddLabData} />;
       default:
         return <Datasets summaryData={summaryData} />;
     }

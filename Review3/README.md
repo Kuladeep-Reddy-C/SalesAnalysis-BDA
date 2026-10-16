@@ -110,6 +110,25 @@ The equivalent explicit Spark command is:
 
 The Spark run records `engine`, Spark version, master, shuffle partitions, row counts, join counts, and timings in `results/metrics/spark_run_summary.json`. It writes Spark-specific metrics and predictions under `results/metrics/spark_model_metrics.csv` and `results/predictions/spark_test_predictions.csv`.
 
+### Four-person Spark RDD lab
+
+The project also includes four complete PySpark RDD implementations. Each person runs the full concept set over the same verified sales data, but uses a different retail question and key design so the work is not duplicated. PySpark 4.x is pinned because the workspace uses Python 3.14 and PySpark 3.5's Python RDD serializer cannot run on that interpreter:
+
+| Owner | RDD situation | Key design | Reason for the analysis |
+|---|---|---|---|
+| Person 1 | Product velocity | `item_id` | Replenishment prioritisation |
+| Person 2 | Department demand | `dept_id` | Category-management workload planning |
+| Person 3 | Store/category mix | `category @ store` | Store-category comparison that scales to more stores |
+| Person 4 | Intermittent demand activity | `item_id` on positive-sales days | Distinguish frequent activity from one-off volume |
+
+Every profile executes `map`, `filter`, `flatMap`, `reduceByKey`, `groupByKey`, `mapValues`, `sortByKey`, partition inspection, actions, `persist()`, lineage capture, and shuffle/DAG analysis. Run all four with:
+
+```bash
+.venv/bin/python run_pipeline.py --rdd-lab
+```
+
+The measured results are written to `results/metrics/rdd_lab_summary.json` and displayed in the website's **RDD Lab** tab. The RDD lab is isolated from the forecast model outputs, serving backend, and streaming checkpoints.
+
 To run the optional simulated stream:
 
 ```bash
@@ -128,10 +147,13 @@ This replays historical rows as JSON micro-batches through Spark Structured Stre
 ### 4. Open the full-stack dashboard
 
 ```bash
-.venv/bin/streamlit run dashboard/app.py
+cd frontend
+npm run dev
 ```
 
-Then visit **[http://localhost:8501](http://localhost:8501)**. The dashboard reads persisted results and does not retrain during normal page rendering.
+Then visit **[http://localhost:3000](http://localhost:3000)**. This single command starts Vite and FastAPI together. It also runs the four-profile RDD lab automatically if `results/metrics/rdd_lab_summary.json` does not exist.
+
+The legacy Streamlit dashboard remains available with `.venv/bin/streamlit run dashboard/app.py` when needed.
 
 The optional API layer can be started separately:
 

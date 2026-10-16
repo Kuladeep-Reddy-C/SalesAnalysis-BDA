@@ -11,10 +11,12 @@ from analytics.model_evidence import run as run_model_evidence
 from serving.store import build_store
 from serving.hbase_load import load as load_hbase
 from analytics.spark_pipeline import run as run_spark
+from analytics.rdd_lab import run as run_rdd_lab
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run the retail demand pipeline')
     parser.add_argument('--engine', choices=('pandas', 'spark'), default='spark')
+    parser.add_argument('--rdd-lab', action='store_true', help='Run the four scenario-specific Spark RDD analyses')
     parser.add_argument('--rolling-backtest', action='store_true')
     parser.add_argument('--availability-comparison', action='store_true')
     parser.add_argument('--benchmark', action='store_true')
@@ -29,6 +31,10 @@ if __name__ == '__main__':
         import uvicorn
         print("Starting Retail Demand Lab UI at http://localhost:8000 ...")
         uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=False)
+        exit(0)
+
+    if args.rdd_lab:
+        print(json.dumps(run_rdd_lab(), indent=2))
         exit(0)
 
     summary = run_spark() if args.engine == 'spark' else run_pandas()

@@ -1,4 +1,4 @@
-pyspark>=3.5,<4
+pyspark>=4.0,<4.1
 setuptools>=84
 pandas>=2.2
 numpy>=1.26
