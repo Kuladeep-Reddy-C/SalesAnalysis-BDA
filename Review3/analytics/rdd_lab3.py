@@ -6,66 +6,38 @@ import sys
 from operator import add
 from pathlib import Path
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 from analytics.spark_support import create_spark_session
 from config import Config
 
-
-PROFILES = (
-    {
-        "id": "person-1-product-velocity",
-        "owner": "Person 1",
-        "title": "Product velocity",
-        "question": "Which products contribute the most demand, and how many sales observations support that result?",
-        "purpose": "Product-level prioritisation for replenishment review.",
-        "key_description": "item_id",
-        "project": lambda row: (row[0], row[5]),
-        "filter": lambda row: row[5] > 0,
-    },
-    {
-        "id": "person-2-department-demand",
-        "owner": "Person 2",
-        "title": "Department demand",
-        "question": "How is demand distributed across departments?",
-        "purpose": "Department-level workload planning for category managers.",
-        "key_description": "dept_id",
-        "project": lambda row: (row[1], row[5]),
-        "filter": lambda row: row[5] >= 0,
-    },
-    {
-        "id": "person-3-store-category-mix",
-        "owner": "Person 3",
-        "title": "Store/category mix",
-        "question": "Which store and category combinations carry the strongest demand?",
-        "purpose": "Store-category comparison that remains useful when more stores are loaded.",
-        "key_description": "store_id + cat_id",
-        "project": lambda row: (f"{row[3]} @ {row[2]}", row[5]),
-        "filter": lambda row: row[5] > 0,
-    },
-    {
-        "id": "person-4-intermittent-demand",
-        "owner": "Person 4",
-        "title": "Intermittent demand activity",
-        "question": "Which products have the most active selling days rather than only the largest totals?",
-        "purpose": "Separate frequent activity from one-off high-volume demand.",
-        "key_description": "item_id on positive-sales days",
-        "project": lambda row: (row[0], 1.0),
-        "filter": lambda row: row[5] > 0,
-    },
-)
+PROFILE = {
+    "id": "scenario-3-store-category-mix",
+    "title": "Store/category mix",
+    "question": "Which store and category combinations carry the strongest demand?",
+    "purpose": "Store-category comparison that remains useful when more stores are loaded.",
+    "key_description": "store_id + cat_id",
+    "project": lambda row: (f"{row[3]} @ {row[2]}", row[5]),
+    "filter": lambda row: row[5] > 0,
+}
 
 
-def _parse_sales(line: str) -> tuple[str, str, str, str, str, float]:
+def parse_sales(line: str) -> tuple[str, str, str, str, str, float]:
     row = next(csv.reader([line]))
     return row[1], row[2], row[3], row[4], row[6], float(row[7])
 
 
-def _run_profile(raw, profile: dict) -> dict:
+def execute_rdd(raw, profile: dict | None = None) -> dict:
+    profile = profile or PROFILE
     header = raw.first()
-    records = (raw
-               .filter(lambda line: line != header)
-               .map(_parse_sales)
-               .filter(profile["filter"])
-               .persist())
+    records = (
+        raw.filter(lambda line: line != header)
+        .map(parse_sales)
+        .filter(profile["filter"])
+        .persist()
+    )
     projected = records.map(profile["project"])
     key_values = projected.flatMap(lambda pair: [(pair[0], pair[1])])
     totals = key_values.reduceByKey(add)
@@ -79,7 +51,6 @@ def _run_profile(raw, profile: dict) -> dict:
 
     return {
         "id": profile["id"],
-        "owner": profile["owner"],
         "title": profile["title"],
         "question": profile["question"],
         "purpose": profile["purpose"],
@@ -100,8 +71,8 @@ def _run_profile(raw, profile: dict) -> dict:
     }
 
 
-def run(config: Config | None = None, output: Path | None = None) -> dict:
-    """Run four complete, scenario-specific RDD analyses over the sales data."""
+def run(config: Config | None = None, spark=None, raw=None, output: Path | None = None) -> dict:
+    """Run Store/Category Mix RDD analysis (Scenario 3)."""
     if sys.version_info >= (3, 14):
         import pyspark
         if pyspark.__version__.startswith("3."):
@@ -111,21 +82,34 @@ def run(config: Config | None = None, output: Path | None = None) -> dict:
             )
     config = config or Config()
     config.prepare()
-    output = output or config.results / "metrics" / "rdd_lab_summary.json"
-    spark = create_spark_session("RetailDemandLabRDDLab")
-    spark.sparkContext.setLogLevel("WARN")
+    output = output or config.results / "metrics" / "rdd_lab3_summary.json"
+
+    should_stop = False
+    if spark is None:
+        spark = create_spark_session("RetailDemandLabRDDLab3")
+        spark.sparkContext.setLogLevel("WARN")
+        should_stop = True
+
     try:
-        raw = spark.sparkContext.textFile(str(config.sales_path))
-        profiles = [_run_profile(raw, profile) for profile in PROFILES]
+        if raw is None:
+            raw = spark.sparkContext.textFile(str(config.sales_path))
+        profile_res = execute_rdd(raw, PROFILE)
         summary = {
             "engine": "pyspark-rdd",
             "spark_version": spark.version,
             "master": spark.sparkContext.master,
             "input": str(config.sales_path),
-            "profile_count": len(profiles),
-            "profiles": profiles,
+            "profile_count": 1,
+            "profiles": [profile_res],
         }
+        output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(summary, indent=2))
-        return summary
+        return profile_res
     finally:
-        spark.stop()
+        if should_stop:
+            spark.stop()
+
+
+if __name__ == "__main__":
+    result = run()
+    print(json.dumps(result, indent=2))

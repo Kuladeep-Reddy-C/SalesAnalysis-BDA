@@ -6,8 +6,7 @@
   "profile_count": 4,
   "profiles": [
     {
-      "id": "person-1-product-velocity",
-      "owner": "Person 1",
+      "id": "scenario-1-product-velocity",
       "title": "Product velocity",
       "question": "Which products contribute the most demand, and how many sales observations support that result?",
       "purpose": "Product-level prioritisation for replenishment review.",
@@ -116,8 +115,7 @@
       }
     },
     {
-      "id": "person-2-department-demand",
-      "owner": "Person 2",
+      "id": "scenario-2-department-demand",
       "title": "Department demand",
       "question": "How is demand distributed across departments?",
       "purpose": "Department-level workload planning for category managers.",
@@ -170,8 +168,7 @@
       }
     },
     {
-      "id": "person-3-store-category-mix",
-      "owner": "Person 3",
+      "id": "scenario-3-store-category-mix",
       "title": "Store/category mix",
       "question": "Which store and category combinations carry the strongest demand?",
       "purpose": "Store-category comparison that remains useful when more stores are loaded.",
@@ -224,8 +221,7 @@
       }
     },
     {
-      "id": "person-4-intermittent-demand",
-      "owner": "Person 4",
+      "id": "scenario-4-intermittent-demand",
       "title": "Intermittent demand activity",
       "question": "Which products have the most active selling days rather than only the largest totals?",
       "purpose": "Separate frequent activity from one-off high-volume demand.",

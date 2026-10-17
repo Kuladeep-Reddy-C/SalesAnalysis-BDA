@@ -8,6 +8,13 @@ const conceptLabels = [
   ['Fault tolerance', 'lineage-based partition recomputation'],
 ];
 
+const defaultPlaceholders = [
+  'Pavan Krishna',
+  'Abhiram Bikkina',
+  'P G Raja',
+  'Kuladeep',
+];
+
 export default function RddLab({ data }) {
   const [customNames, setCustomNames] = React.useState(() => {
     try {
@@ -34,8 +41,8 @@ export default function RddLab({ data }) {
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-brand-50 text-brand-700"><Layers3 className="w-5 h-5" /></div>
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Four-person Spark RDD lab</h1>
-            <p className="mt-1 text-sm text-slate-600">One complete RDD workflow per person, with a different retail question and key design.</p>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Spark RDD Analytics Lab</h1>
+            <p className="mt-1 text-sm text-slate-600">Four scenario-driven distributed RDD pipelines, each evaluating distinct retail demand dimensions.</p>
           </div>
         </div>
       </div>
@@ -68,7 +75,7 @@ export default function RddLab({ data }) {
                       type="text"
                       value={customNames[profile.id] ?? ''}
                       onChange={(e) => handleNameChange(profile.id, e.target.value)}
-                      placeholder={`Person ${index + 1}`}
+                      placeholder={defaultPlaceholders[index] || `Analyst ${index + 1}`}
                       className="text-[11px] uppercase tracking-wide font-bold text-brand-600 placeholder:text-brand-400 bg-slate-50/70 hover:bg-slate-100/70 focus:bg-white border border-slate-200 hover:border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded px-2 py-0.5 outline-none transition-all w-48 block"
                     />
                     <h2 className="text-lg font-bold text-slate-900 mt-1">{profile.title}</h2>

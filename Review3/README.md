@@ -110,18 +110,18 @@ The equivalent explicit Spark command is:
 
 The Spark run records `engine`, Spark version, master, shuffle partitions, row counts, join counts, and timings in `results/metrics/spark_run_summary.json`. It writes Spark-specific metrics and predictions under `results/metrics/spark_model_metrics.csv` and `results/predictions/spark_test_predictions.csv`.
 
-### Four-person Spark RDD lab
+### Modular Spark RDD Analytics Lab
 
-The project also includes four complete PySpark RDD implementations. Each person runs the full concept set over the same verified sales data, but uses a different retail question and key design so the work is not duplicated. PySpark 4.x is pinned because the workspace uses Python 3.14 and PySpark 3.5's Python RDD serializer cannot run on that interpreter:
+The project also includes four complete, standalone PySpark RDD implementations (`rdd_lab1.py` through `rdd_lab4.py`). Each module executes the full concept set over the verified sales dataset across distinct retail analytical dimensions. PySpark 4.x is pinned because the workspace uses Python 3.14 and PySpark 3.5's Python RDD serializer cannot run on that interpreter:
 
-| Owner | RDD situation | Key design | Reason for the analysis |
+| Module | Analysis Scenario | Key design | Business Objective |
 |---|---|---|---|
-| Person 1 | Product velocity | `item_id` | Replenishment prioritisation |
-| Person 2 | Department demand | `dept_id` | Category-management workload planning |
-| Person 3 | Store/category mix | `category @ store` | Store-category comparison that scales to more stores |
-| Person 4 | Intermittent demand activity | `item_id` on positive-sales days | Distinguish frequent activity from one-off volume |
+| `analytics/rdd_lab1.py` | Product velocity | `item_id` | Replenishment prioritisation |
+| `analytics/rdd_lab2.py` | Department demand | `dept_id` | Category-management workload planning |
+| `analytics/rdd_lab3.py` | Store/category mix | `category @ store` | Store-category comparison that scales to more stores |
+| `analytics/rdd_lab4.py` | Intermittent demand activity | `item_id` on positive-sales days | Distinguish frequent activity from one-off volume |
 
-Every profile executes `map`, `filter`, `flatMap`, `reduceByKey`, `groupByKey`, `mapValues`, `sortByKey`, partition inspection, actions, `persist()`, lineage capture, and shuffle/DAG analysis. Run all four with:
+Every module executes `map`, `filter`, `flatMap`, `reduceByKey`, `groupByKey`, `mapValues`, `sortByKey`, partition inspection, actions, `persist()`, lineage capture, and shuffle/DAG analysis. Each file can be executed individually (e.g. `.venv/bin/python analytics/rdd_lab1.py`) or all four together with:
 
 ```bash
 .venv/bin/python run_pipeline.py --rdd-lab
